@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package chat;
+
+option go_package = "github.com/grpc-applications/chat-service/pkg/pb";
+
+// Room represents a chat room
+message Room {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  int32 member_count = 4;
+  string created_at = 5;
+}
+
+// Message represents a chat message
+message Message {
+  string id = 1;
+  string room_id = 2;
+  string sender = 3;
+  string content = 4;
+  string timestamp = 5;
+}
+
+// User represents a chat user
+message User {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string status = 4;
+}
+
+// GetRoomRequest
+message GetRoomRequest {
+  string room_id = 1;
+}
+
+// GetRoomResponse
+message GetRoomResponse {
+  Room room = 1;
+  string status = 2;
+}
+
+// ListRoomsRequest
+message ListRoomsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+// ListRoomsResponse
+message ListRoomsResponse {
+  repeated Room rooms = 1;
+  int32 total = 2;
+}
+
+// CreateRoomRequest
+message CreateRoomRequest {
+  string name = 1;
+  string description = 2;
+}
+
+// CreateRoomResponse
+message CreateRoomResponse {
+  Room room = 1;
+  string status = 2;
+}
+
+// SendMessageRequest
+message SendMessageRequest {
+  string room_id = 1;
+  string sender = 2;
+  string content = 3;
+}
+
+// SendMessageResponse
+message SendMessageResponse {
+  Message message = 1;
+  string status = 2;
+}
+
+// GetMessagesRequest
+message GetMessagesRequest {
+  string room_id = 1;
+  int32 limit = 2;
+}
+
+// GetMessagesResponse
+message GetMessagesResponse {
+  repeated Message messages = 1;
+  int32 total = 2;
+}
+
+// DeleteRoomRequest
+message DeleteRoomRequest {
+  string room_id = 1;
+}
+
+// DeleteRoomResponse
+message DeleteRoomResponse {
+  string status = 1;
+  string message = 2;
+}
+
+// ChatService - unary gRPC service for chat operations
+service ChatService {
+  // GetRoom retrieves a specific room by ID
+  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
+
+  // ListRooms retrieves all available rooms
+  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
+
+  // CreateRoom creates a new chat room
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
+
+  // SendMessage sends a message to a room
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+
+  // GetMessages retrieves messages from a room
+  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+
+  // DeleteRoom deletes a room
+  rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse);
+}

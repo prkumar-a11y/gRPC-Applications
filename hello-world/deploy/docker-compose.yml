@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  grpc-server:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: hello-world-grpc
+    ports:
+      - "50051:50051"
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+    networks:
+      - grpc-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:50051"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  grpc-network:
+    driver: bridge
