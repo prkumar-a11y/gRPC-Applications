@@ -109,6 +109,10 @@ go run ./cmd/server/main.go
 
 # Run with custom port
 go run ./cmd/server/main.go -port=9090
+
+# Run with TLS enabled
+# Assumes certificate and key files are present
+go run ./cmd/server/main.go -tls -cert=server.crt -key=server.key
 ```
 
 ### Client
@@ -119,6 +123,12 @@ go run ./cmd/client/main.go -name "World"
 
 # Connect to remote server
 go run ./cmd/client/main.go -addr "192.168.1.100:50051" -name "World"
+
+# Connect to a TLS server using a custom CA certificate
+go run ./cmd/client/main.go -tls -ca_cert=cert.pem -addr "localhost:50051" -name "World"
+
+# Connect to a TLS server using system CA trust
+go run ./cmd/client/main.go -tls -addr "localhost:50051" -name "World"
 ```
 
 ## Linux Deployment
@@ -133,6 +143,8 @@ chmod +x deploy/install.sh
 
 # Run installation (requires sudo)
 sudo deploy/install.sh
+
+# The installed service uses TLS and stores generated certs in /opt/hello-world/certs
 
 # Start service
 sudo systemctl start hello-world
@@ -424,7 +436,11 @@ done
    # Generate certificates
    openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
    
-   # Use in server (implement in code)
+   # Run the server with TLS enabled
+   go run ./cmd/server/main.go -tls -cert=cert.pem -key=key.pem
+   
+   # Run the client with a custom CA cert
+   go run ./cmd/client/main.go -tls -ca_cert=cert.pem -addr "localhost:50051" -name "World"
    ```
 
 2. **Use firewall rules**

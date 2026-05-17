@@ -123,7 +123,7 @@ sudo iptables -A INPUT -p tcp --dport 50051 -j ACCEPT
 sudo systemctl start hello-world
 sudo systemctl enable hello-world
 ```
-
+The installed service runs TLS by default and uses generated certs stored in `/opt/hello-world/certs`.
 ## Testing the Deployment
 
 ### Test locally on the server

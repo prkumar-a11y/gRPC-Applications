@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=grpc
 WorkingDirectory=/opt/hello-world
-ExecStart=/opt/hello-world/bin/server -port=50051
+ExecStart=/opt/hello-world/bin/server -port=50051 -tls -cert=/opt/hello-world/certs/server.crt -key=/opt/hello-world/certs/server.key
 Restart=on-failure
 RestartSec=10
 

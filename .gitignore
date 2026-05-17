@@ -1,0 +1,6 @@
+# Ignore build artifacts and temporary files
+hello-world/bin/
+hello-world/pkg/*.bak
+hello-world/pkg/*.bak.old
+hello-world/github.com/
+hello-world/github.com/

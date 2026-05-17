@@ -31,7 +31,9 @@ fi
 
 # Create installation directory
 mkdir -p "$INSTALL_DIR/bin"
+mkdir -p "$INSTALL_DIR/certs"
 chmod 755 "$INSTALL_DIR"
+chmod 700 "$INSTALL_DIR/certs"
 echo "  ✓ Created $INSTALL_DIR"
 
 echo ""
@@ -43,6 +45,33 @@ chmod +x "$INSTALL_DIR/bin/server"
 echo "  ✓ Server built successfully"
 
 echo ""
+echo "[2.1/5] Generating TLS certificates..."
+CERT_FILE="$INSTALL_DIR/certs/server.crt"
+KEY_FILE="$INSTALL_DIR/certs/server.key"
+if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
+    if ! command -v openssl >/dev/null; then
+        echo "OpenSSL is not installed. Installing openssl..."
+        if command -v apt-get >/dev/null; then
+            apt-get update
+            apt-get install -y openssl
+        elif command -v yum >/dev/null; then
+            yum install -y openssl
+        elif command -v dnf >/dev/null; then
+            dnf install -y openssl
+        else
+            echo "Error: package manager not found. Install openssl manually and rerun."
+            exit 1
+        fi
+    fi
+    openssl req -x509 -newkey rsa:4096 -keyout "$KEY_FILE" -out "$CERT_FILE" -days 365 -nodes -subj "/CN=localhost"
+    chmod 600 "$KEY_FILE"
+    chmod 644 "$CERT_FILE"
+    echo "  ✓ Generated self-signed TLS certificate"
+else
+    echo "  ✓ TLS certificate already exists, skipping generation"
+fi
+
+echo ""
 echo "[3/5] Setting up systemd service..."
 # Copy systemd service file
 cp "$(dirname "$0")/hello-world.service" "/etc/systemd/system/$SERVICE_NAME.service"
@@ -50,6 +79,7 @@ chmod 644 "/etc/systemd/system/$SERVICE_NAME.service"
 
 # Set proper ownership
 chown -R "$SERVICE_USER:$SERVICE_USER" "$INSTALL_DIR"
+chown -R "$SERVICE_USER:$SERVICE_USER" "/etc/systemd/system/$SERVICE_NAME.service"
 echo "  ✓ Service file installed at /etc/systemd/system/$SERVICE_NAME.service"
 
 echo ""
