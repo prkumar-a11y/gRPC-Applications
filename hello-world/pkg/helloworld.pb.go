@@ -10,7 +10,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -139,7 +138,8 @@ var (
 		0, // [0:0] is the sub-list for extension extendee
 		0, // [0:0] is the sub-list for field type_name
 	}
-)
+		file_proto_helloworld_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	)
 
 func init() {
 	file_proto_helloworld_proto_init()
@@ -148,6 +148,7 @@ func file_proto_helloworld_proto_init() {
 	if File_proto_helloworld_proto != nil {
 		return
 	}
+
 	if !protoimpl.UnsafeEnabled {
 		file_proto_helloworld_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*HelloRequest); i {
@@ -193,11 +194,3 @@ func file_proto_helloworld_proto_init() {
 	file_proto_helloworld_proto_goTypes = nil
 	file_proto_helloworld_proto_depIdxs = nil
 }
-
-var (
-	file_proto_helloworld_proto_msgTypes [2]protoimpl.MessageInfo
-	file_proto_helloworld_proto_goTypes  = []interface{}{
-		(*HelloRequest)(nil),
-		(*HelloReply)(nil),
-	}
-)
