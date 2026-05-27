@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package chat;
 
-option go_package = "github.com/chat-service/proto;chat";
+option go_package = "github.com/grpc-applications/chat-service/pkg";
 
 // The Chat service definition
 service ChatService {
