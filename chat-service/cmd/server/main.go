@@ -118,7 +118,7 @@ func (s *ChatServer) SendMessage(ctx context.Context, req *pb.SendMessageRequest
 
 // GetMessages retrieves messages from a room
 func (s *ChatServer) GetMessages(ctx context.Context, req *pb.GetMessagesRequest) (*pb.GetMessagesResponse, error) {
-	roomID := fmt.Sprintf("room_%d", int64(req.RoomId))
+	roomID := req.RoomId
 	messages, ok := s.messages[roomID]
 	if !ok {
 		return &pb.GetMessagesResponse{

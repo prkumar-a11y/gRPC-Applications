@@ -10,7 +10,6 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -953,6 +952,7 @@ var (
 		0x33,
 	}
 
+	file_proto_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 	file_proto_chat_proto_goTypes = []interface{}{
 		(*Room)(nil),                      // 0: chat.Room
 		(*Message)(nil),                   // 1: chat.Message

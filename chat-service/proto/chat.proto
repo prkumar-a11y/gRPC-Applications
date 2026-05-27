@@ -2,122 +2,101 @@ syntax = "proto3";
 
 package chat;
 
-option go_package = "github.com/grpc-applications/chat-service/pkg/pb";
+option go_package = "github.com/chat-service/proto;chat";
 
-// Room represents a chat room
-message Room {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-  int32 member_count = 4;
-  string created_at = 5;
+// The Chat service definition
+service ChatService {
+  // Join a chat room and receive messages
+  rpc JoinRoom(JoinRoomRequest) returns (stream Message);
+  
+  // Send a message to a room
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  
+  // Leave a chat room
+  rpc LeaveRoom(LeaveRoomRequest) returns (LeaveRoomResponse);
+  
+  // Get list of active rooms
+  rpc GetRooms(GetRoomsRequest) returns (GetRoomsResponse);
+  
+  // Get list of users in a specific room
+  rpc GetRoomUsers(GetRoomUsersRequest) returns (GetRoomUsersResponse);
 }
 
-// Message represents a chat message
-message Message {
-  string id = 1;
-  string room_id = 2;
-  string sender = 3;
-  string content = 4;
-  string timestamp = 5;
-}
-
-// User represents a chat user
-message User {
-  string id = 1;
-  string username = 2;
-  string email = 3;
-  string status = 4;
-}
-
-// GetRoomRequest
-message GetRoomRequest {
+// Request to join a room
+message JoinRoomRequest {
   string room_id = 1;
+  string username = 2;
 }
 
-// GetRoomResponse
-message GetRoomResponse {
-  Room room = 1;
-  string status = 2;
-}
-
-// ListRoomsRequest
-message ListRoomsRequest {
-  int32 limit = 1;
-  int32 offset = 2;
-}
-
-// ListRoomsResponse
-message ListRoomsResponse {
-  repeated Room rooms = 1;
-  int32 total = 2;
-}
-
-// CreateRoomRequest
-message CreateRoomRequest {
-  string name = 1;
-  string description = 2;
-}
-
-// CreateRoomResponse
-message CreateRoomResponse {
-  Room room = 1;
-  string status = 2;
-}
-
-// SendMessageRequest
+// Request to send a message
 message SendMessageRequest {
   string room_id = 1;
-  string sender = 2;
+  string username = 2;
   string content = 3;
 }
 
-// SendMessageResponse
+// Response after sending a message
 message SendMessageResponse {
-  Message message = 1;
-  string status = 2;
+  bool success = 1;
+  string message_id = 2;
 }
 
-// GetMessagesRequest
-message GetMessagesRequest {
+// Request to leave a room
+message LeaveRoomRequest {
   string room_id = 1;
-  int32 limit = 2;
+  string username = 2;
 }
 
-// GetMessagesResponse
-message GetMessagesResponse {
-  repeated Message messages = 1;
-  int32 total = 2;
+// Response after leaving a room
+message LeaveRoomResponse {
+  bool success = 1;
 }
 
-// DeleteRoomRequest
-message DeleteRoomRequest {
+// A chat message
+message Message {
+  string message_id = 1;
+  string room_id = 2;
+  string username = 3;
+  string content = 4;
+  int64 timestamp = 5;
+  MessageType type = 6;
+}
+
+// Message types
+enum MessageType {
+  USER_MESSAGE = 0;
+  SYSTEM_MESSAGE = 1;
+  USER_JOINED = 2;
+  USER_LEFT = 3;
+}
+
+// Request to get rooms
+message GetRoomsRequest {}
+
+// Response with list of rooms
+message GetRoomsResponse {
+  repeated Room rooms = 1;
+}
+
+// Request to get users in a room
+message GetRoomUsersRequest {
   string room_id = 1;
 }
 
-// DeleteRoomResponse
-message DeleteRoomResponse {
-  string status = 1;
-  string message = 2;
+// Response with list of users in a room
+message GetRoomUsersResponse {
+  repeated User users = 1;
 }
 
-// ChatService - unary gRPC service for chat operations
-service ChatService {
-  // GetRoom retrieves a specific room by ID
-  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
+// Room information
+message Room {
+  string room_id = 1;
+  string name = 2;
+  int32 user_count = 3;
+}
 
-  // ListRooms retrieves all available rooms
-  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
-
-  // CreateRoom creates a new chat room
-  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
-
-  // SendMessage sends a message to a room
-  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
-
-  // GetMessages retrieves messages from a room
-  rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
-
-  // DeleteRoom deletes a room
-  rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse);
+// User information
+message User {
+  string username = 1;
+  int64 joined_at = 2;
 }
