@@ -8,12 +8,17 @@ import random
 import logging
 import signal
 import sys
+from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 
 # Import generated protobuf classes
-import proto.stock_ticker_pb2 as stock_ticker_pb2
-import proto.stock_ticker_pb2_grpc as stock_ticker_pb2_grpc
+PROTO_DIR = Path(__file__).resolve().parent / 'proto'
+if str(PROTO_DIR) not in sys.path:
+    sys.path.insert(0, str(PROTO_DIR))
+
+import stock_ticker_pb2 as stock_ticker_pb2
+import stock_ticker_pb2_grpc as stock_ticker_pb2_grpc
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - [%(threadName)s %(thread)d] - %(name)s - %(levelname)s - %(message)s')
