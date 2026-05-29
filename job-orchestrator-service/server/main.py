@@ -1,7 +1,7 @@
 """gRPC server main entry point"""
 import asyncio
 import logging
-from signal import signal, SIGTERM, SIGINT
+import os
 
 import grpc
 from grpc_reflection.v1alpha import reflection
@@ -38,8 +38,10 @@ async def serve():
     )
     reflection.enable_server_reflection(SERVICE_NAMES, server)
     
-    # Bind to port
-    listen_addr = '[::]:50055'
+    # Bind to configured host and port so the Linux service can be adjusted without code changes.
+    host = os.getenv('JOB_ORCHESTRATOR_HOST', '0.0.0.0')
+    port = os.getenv('JOB_ORCHESTRATOR_PORT', '50055')
+    listen_addr = f'{host}:{port}'
     server.add_insecure_port(listen_addr)
     
     logger.info(f"Starting Job Orchestrator gRPC server on {listen_addr}")

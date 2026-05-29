@@ -284,6 +284,30 @@ docker build -t job-orchestrator:latest .
 docker run -p 50055:50055 job-orchestrator:latest
 ```
 
+## Linux Service Deployment
+
+Ubuntu-style deployment assets live in `deploy/`, matching the pattern used elsewhere in this repository.
+
+Install locally from this repo checkout:
+
+```bash
+chmod +x deploy/install.sh
+sudo ./deploy/install.sh
+```
+
+This installs the service into `/opt/job-orchestrator-service` and registers a `systemd` unit named `job-orchestrator`.
+
+Service commands:
+
+```bash
+sudo systemctl start job-orchestrator
+sudo systemctl enable job-orchestrator
+sudo systemctl status job-orchestrator
+sudo journalctl -u job-orchestrator -f
+```
+
+Full Linux deployment notes are in `deploy/DEPLOYMENT.md`.
+
 ### Docker Compose Integration
 
 Add to your existing `docker-compose.yaml`:

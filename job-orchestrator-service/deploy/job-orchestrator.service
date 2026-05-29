@@ -1,0 +1,23 @@
+[Unit]
+Description=Job Orchestrator gRPC Server
+After=network.target
+
+[Service]
+Type=simple
+User=grpc
+Group=grpc
+WorkingDirectory=/opt/job-orchestrator-service
+Environment=PYTHONUNBUFFERED=1
+Environment=JOB_ORCHESTRATOR_HOST=0.0.0.0
+Environment=JOB_ORCHESTRATOR_PORT=50055
+ExecStart=/opt/job-orchestrator-service/venv/bin/python -m server.main
+Restart=on-failure
+RestartSec=10
+
+NoNewPrivileges=true
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=job-orchestrator
+
+[Install]
+WantedBy=multi-user.target
