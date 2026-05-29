@@ -38,6 +38,7 @@ mkdir -p "${INSTALL_DIR}/app"
 
 cp -R "${APP_SOURCE_DIR}/." "${INSTALL_DIR}/app/"
 cp "${APP_SOURCE_DIR}/main.py" "${INSTALL_DIR}/main.py"
+rm -rf "${INSTALL_DIR}/proto"
 cp -R "${APP_SOURCE_DIR}/proto" "${INSTALL_DIR}/proto"
 cp "${APP_SOURCE_DIR}/requirements.txt" "${INSTALL_DIR}/requirements.txt"
 cp "${APP_SOURCE_DIR}/generate.sh" "${INSTALL_DIR}/generate.sh"
@@ -52,6 +53,12 @@ chmod +x "${INSTALL_DIR}/generate.sh"
     --python_out=. \
     --grpc_python_out=. \
     proto/stock_ticker.proto)
+
+if [[ ! -f "${INSTALL_DIR}/proto/stock_ticker_pb2.py" || ! -f "${INSTALL_DIR}/proto/stock_ticker_pb2_grpc.py" ]]; then
+    echo "Error: protobuf generation did not create the expected Python modules" >&2
+    ls -la "${INSTALL_DIR}/proto" >&2 || true
+    exit 1
+fi
 
 cp "${APP_SOURCE_DIR}/deploy/${SERVICE_NAME}.service" "/etc/systemd/system/${SERVICE_NAME}.service"
 chmod 644 "/etc/systemd/system/${SERVICE_NAME}.service"
