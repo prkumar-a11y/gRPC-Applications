@@ -11,6 +11,8 @@ INSTALL_DIR="/opt/stock-ticker-service"
 SERVICE_USER="grpc"
 SERVICE_NAME="stock-ticker"
 PORT="50053"
+WEB_SERVICE_NAME="stock-ticker-web"
+WEB_PORT="8080"
 APP_SOURCE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "================================"
@@ -62,13 +64,17 @@ fi
 
 cp "${APP_SOURCE_DIR}/deploy/${SERVICE_NAME}.service" "/etc/systemd/system/${SERVICE_NAME}.service"
 chmod 644 "/etc/systemd/system/${SERVICE_NAME}.service"
+cp "${APP_SOURCE_DIR}/deploy/${WEB_SERVICE_NAME}.service" "/etc/systemd/system/${WEB_SERVICE_NAME}.service"
+chmod 644 "/etc/systemd/system/${WEB_SERVICE_NAME}.service"
 
 if command -v ufw >/dev/null 2>&1; then
     ufw allow "${PORT}/tcp" || true
+    ufw allow "${WEB_PORT}/tcp" || true
 fi
 
 if command -v firewall-cmd >/dev/null 2>&1 && systemctl is-active --quiet firewalld; then
     firewall-cmd --permanent --add-port="${PORT}/tcp"
+    firewall-cmd --permanent --add-port="${WEB_PORT}/tcp"
     firewall-cmd --reload
 fi
 
@@ -79,5 +85,8 @@ echo ""
 echo "Installation complete"
 echo "Start service:   systemctl start ${SERVICE_NAME}"
 echo "Enable service:  systemctl enable ${SERVICE_NAME}"
+echo "Start web:       systemctl start ${WEB_SERVICE_NAME}"
+echo "Enable web:      systemctl enable ${WEB_SERVICE_NAME}"
 echo "View logs:       journalctl -u ${SERVICE_NAME} -f"
 echo "Listen port:     ${PORT}"
+echo "Web port:        ${WEB_PORT}"

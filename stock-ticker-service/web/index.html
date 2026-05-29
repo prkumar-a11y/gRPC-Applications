@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Ticker Live Board</title>
+<style>
+  :root {
+    --bg: #f3efe6;
+    --paper: rgba(255, 250, 241, 0.85);
+    --ink: #15231b;
+    --muted: #54645d;
+    --line: rgba(21, 35, 27, 0.12);
+    --accent: #006c4f;
+    --accent-2: #b55d24;
+    --rise: #0d8a5f;
+    --fall: #c53f2f;
+    --panel: rgba(21, 35, 27, 0.96);
+    --panel-soft: rgba(35, 52, 43, 0.95);
+    --panel-text: #eef5ef;
+    --glow: radial-gradient(circle at top left, rgba(181, 93, 36, 0.22), transparent 32%), radial-gradient(circle at bottom right, rgba(0, 108, 79, 0.18), transparent 35%);
+    --shadow: 0 22px 70px rgba(16, 26, 21, 0.16);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: "Avenir Next", "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--glow), linear-gradient(180deg, #fbf7ef 0%, #eee6d7 100%);
+  }
+
+  .shell {
+    width: min(1380px, calc(100vw - 32px));
+    margin: 18px auto;
+    background: var(--paper);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: fade-up 500ms ease;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .brand h1 {
+    margin: 0;
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-size: clamp(1.9rem, 3vw, 3rem);
+    letter-spacing: -0.04em;
+  }
+
+  .brand p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .status-bar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+    gap: 12px;
+    min-width: min(440px, 100%);
+  }
+
+  .pill {
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.58);
+    border: 1px solid rgba(21, 35, 27, 0.08);
+  }
+
+  .pill .label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pill strong {
+    font-size: 1rem;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    min-height: calc(100vh - 140px);
+  }
+
+  aside {
+    padding: 20px;
+    border-right: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(243, 239, 230, 0.2));
+  }
+
+  .side-card, .note-card {
+    border-radius: 22px;
+    background: rgba(255,255,255,0.68);
+    border: 1px solid rgba(21,35,27,0.08);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .side-card h2, .note-card h2 {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .control-row {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  label {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  input, button {
+    font: inherit;
+  }
+
+  input {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(21,35,27,0.14);
+    background: rgba(255,255,255,0.86);
+    color: var(--ink);
+  }
+
+  button {
+    border: none;
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, var(--accent), #118863);
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+    transition: transform 140ms ease, box-shadow 140ms ease;
+    box-shadow: 0 12px 28px rgba(0, 108, 79, 0.18);
+  }
+
+  button:hover { transform: translateY(-1px); }
+  button.secondary {
+    background: rgba(21, 35, 27, 0.08);
+    color: var(--ink);
+    box-shadow: none;
+  }
+
+  #symbol-list {
+    display: grid;
+    gap: 8px;
+    max-height: 52vh;
+    overflow: auto;
+  }
+
+  .symbol-item {
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.65);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: 160ms ease;
+  }
+
+  .symbol-item:hover, .symbol-item.active {
+    background: white;
+    border-color: rgba(0, 108, 79, 0.3);
+    transform: translateX(2px);
+  }
+
+  .symbol-item strong {
+    display: block;
+    font-size: 1rem;
+  }
+
+  .symbol-item span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  main {
+    padding: 22px;
+    display: grid;
+    gap: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.2), rgba(248,243,235,0.02));
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+    gap: 18px;
+  }
+
+  .market-card, .detail-card, .log-card, .snapshot-card {
+    border-radius: 28px;
+    overflow: hidden;
+  }
+
+  .market-card {
+    padding: 24px;
+    background: linear-gradient(135deg, var(--panel) 0%, var(--panel-soft) 100%);
+    color: var(--panel-text);
+    position: relative;
+  }
+
+  .market-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -30px -45px auto;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(181, 93, 36, 0.24), transparent 68%);
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgba(238,245,239,0.74);
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #9aa89f;
+  }
+
+  .dot.connected { background: #20d388; box-shadow: 0 0 0 10px rgba(32, 211, 136, 0.14); }
+
+  .title-row {
+    margin-top: 22px;
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: end;
+  }
+
+  .company h2 {
+    margin: 0;
+    font-family: "Iowan Old Style", Georgia, serif;
+    font-size: clamp(2.2rem, 4vw, 4rem);
+    letter-spacing: -0.04em;
+  }
+
+  .company p { margin: 6px 0 0; color: rgba(238,245,239,0.72); }
+
+  .price {
+    text-align: right;
+    position: relative;
+    z-index: 1;
+  }
+
+  .price strong {
+    display: block;
+    font-family: Menlo, Consolas, monospace;
+    font-size: clamp(2.1rem, 4vw, 4rem);
+    letter-spacing: -0.04em;
+  }
+
+  .delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .delta.rise { color: #78efbb; }
+  .delta.fall { color: #ff9a87; }
+
+  .spark-wrap {
+    margin-top: 24px;
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  svg { width: 100%; height: 180px; display: block; }
+  .grid-line { stroke: rgba(255,255,255,0.1); stroke-width: 1; }
+  .spark-line { fill: none; stroke: #f3f6f3; stroke-width: 3; }
+  .spark-fill { fill: rgba(32, 211, 136, 0.18); }
+
+  .snapshot-card {
+    display: grid;
+    gap: 14px;
+  }
+
+  .snapshot-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .snapshot-grid article,
+  .detail-card article,
+  .log-card article {
+    background: rgba(255,255,255,0.7);
+    border-radius: 22px;
+    border: 1px solid rgba(21,35,27,0.08);
+    padding: 18px;
+  }
+
+  .kicker {
+    font-size: 0.73rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .metric {
+    margin-top: 8px;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 1.5rem;
+  }
+
+  .detail-card {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .log-card {
+    background: rgba(255,255,255,0.34);
+    border-radius: 28px;
+    border: 1px solid rgba(21,35,27,0.08);
+    padding: 16px;
+  }
+
+  .log-card header {
+    padding: 6px 6px 14px;
+    border: 0;
+  }
+
+  #event-log {
+    display: grid;
+    gap: 10px;
+    max-height: 34vh;
+    overflow: auto;
+    padding: 0 6px 6px;
+  }
+
+  .event {
+    display: grid;
+    grid-template-columns: 116px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    background: rgba(255,255,255,0.78);
+    border-radius: 18px;
+    padding: 12px 14px;
+    border: 1px solid rgba(21,35,27,0.07);
+  }
+
+  .event time, .event .volume {
+    font-family: Menlo, Consolas, monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .event strong { display: block; }
+
+  .empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 1080px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { border-right: 0; border-bottom: 1px solid var(--line); }
+    .hero { grid-template-columns: 1fr; }
+    .detail-card { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 720px) {
+    .shell { width: calc(100vw - 16px); margin: 8px auto; border-radius: 22px; }
+    header { padding: 16px; display: grid; }
+    .status-bar { grid-template-columns: 1fr; min-width: 0; }
+    aside, main { padding: 16px; }
+    .title-row { display: grid; }
+    .price { text-align: left; }
+    .event { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <h1>Stock Ticker Live Board</h1>
+        <p>Browser UI backed by a thin web bridge that talks native gRPC to the stock ticker service.</p>
+      </div>
+      <div class="status-bar">
+        <div class="pill">
+          <span class="label">Connection</span>
+          <strong id="connection-status">Booting</strong>
+        </div>
+        <div class="pill">
+          <span class="label">Selected Symbol</span>
+          <strong id="selected-symbol-pill">-</strong>
+        </div>
+        <div class="pill">
+          <span class="label">Web Bridge</span>
+          <strong id="bridge-status">Checking</strong>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside>
+        <section class="side-card">
+          <h2>Stream Control</h2>
+          <div class="control-row">
+            <label for="client-id">Client ID</label>
+            <input id="client-id" type="text" value="web-dashboard" maxlength="100">
+          </div>
+          <div class="control-row">
+            <label for="custom-symbol">Manual Symbol</label>
+            <input id="custom-symbol" type="text" placeholder="AAPL or AAPL:5">
+          </div>
+          <button id="connect-button">Connect Stream</button>
+          <button id="refresh-button" class="secondary" style="margin-top:10px">Refresh Snapshot</button>
+        </section>
+
+        <section class="side-card">
+          <h2>Available Symbols</h2>
+          <div id="symbol-list">
+            <div class="empty">Loading symbols...</div>
+          </div>
+        </section>
+
+        <section class="note-card">
+          <h2>Usage Notes</h2>
+          <p style="margin:0;color:var(--muted);line-height:1.55;font-size:0.95rem;">
+            The page opens a server-sent event stream to the web bridge, and the bridge subscribes to the gRPC service on your behalf.
+          </p>
+        </section>
+      </aside>
+
+      <main>
+        <section class="hero">
+          <article class="market-card">
+            <div class="eyebrow">
+              <span id="stream-dot" class="dot"></span>
+              <span id="market-status">No active stream</span>
+            </div>
+            <div class="title-row">
+              <div class="company">
+                <h2 id="company-name">Select a symbol</h2>
+                <p id="company-sector">Market data will appear here once the bridge connects.</p>
+              </div>
+              <div class="price">
+                <strong id="price-value">$0.00</strong>
+                <span id="price-delta" class="delta">Awaiting update</span>
+              </div>
+            </div>
+            <div class="spark-wrap">
+              <svg viewBox="0 0 640 180" preserveAspectRatio="none" aria-label="price sparkline">
+                <path id="spark-fill" class="spark-fill" d=""></path>
+                <path id="spark-line" class="spark-line" d=""></path>
+              </svg>
+            </div>
+          </article>
+
+          <section class="snapshot-card">
+            <div class="snapshot-grid">
+              <article>
+                <span class="kicker">Timestamp</span>
+                <div id="timestamp-value" class="metric">-</div>
+              </article>
+              <article>
+                <span class="kicker">Volume</span>
+                <div id="volume-value" class="metric">-</div>
+              </article>
+              <article>
+                <span class="kicker">Session State</span>
+                <div id="session-value" class="metric">-</div>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <section class="detail-card">
+          <article>
+            <span class="kicker">Open Stream Target</span>
+            <div id="stream-target" class="metric">-</div>
+          </article>
+          <article>
+            <span class="kicker">Recent Updates</span>
+            <div id="update-count" class="metric">0</div>
+          </article>
+          <article>
+            <span class="kicker">Last Error</span>
+            <div id="error-value" class="metric" style="font-size:1rem;line-height:1.4">None</div>
+          </article>
+        </section>
+
+        <section class="log-card">
+          <header>
+            <div>
+              <span class="kicker">Live Tape</span>
+              <h2 style="margin:6px 0 0;font-size:1.35rem">Recent price events</h2>
+            </div>
+          </header>
+          <div id="event-log">
+            <div class="empty">Connect to a symbol to start streaming updates.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+<script>
+  const state = {
+    symbols: [],
+    selectedSymbol: '',
+    selectedMeta: null,
+    updates: [],
+    eventSource: null,
+  };
+
+  const elements = {
+    connectionStatus: document.getElementById('connection-status'),
+    selectedSymbolPill: document.getElementById('selected-symbol-pill'),
+    bridgeStatus: document.getElementById('bridge-status'),
+    symbolList: document.getElementById('symbol-list'),
+    companyName: document.getElementById('company-name'),
+    companySector: document.getElementById('company-sector'),
+    priceValue: document.getElementById('price-value'),
+    priceDelta: document.getElementById('price-delta'),
+    streamDot: document.getElementById('stream-dot'),
+    marketStatus: document.getElementById('market-status'),
+    timestampValue: document.getElementById('timestamp-value'),
+    volumeValue: document.getElementById('volume-value'),
+    sessionValue: document.getElementById('session-value'),
+    streamTarget: document.getElementById('stream-target'),
+    updateCount: document.getElementById('update-count'),
+    errorValue: document.getElementById('error-value'),
+    eventLog: document.getElementById('event-log'),
+    clientId: document.getElementById('client-id'),
+    customSymbol: document.getElementById('custom-symbol'),
+    connectButton: document.getElementById('connect-button'),
+    refreshButton: document.getElementById('refresh-button'),
+    sparkLine: document.getElementById('spark-line'),
+    sparkFill: document.getElementById('spark-fill'),
+  };
+
+  async function boot() {
+    await checkBridge();
+    await loadSymbols();
+    wireActions();
+  }
+
+  function wireActions() {
+    elements.connectButton.addEventListener('click', () => {
+      const manual = elements.customSymbol.value.trim().toUpperCase();
+      const target = manual || state.selectedSymbol;
+      if (target) {
+        selectSymbol(target);
+      }
+    });
+
+    elements.refreshButton.addEventListener('click', async () => {
+      if (state.selectedSymbol) {
+        await fetchSnapshot(state.selectedSymbol);
+      }
+    });
+  }
+
+  async function checkBridge() {
+    try {
+      const response = await fetch('/healthz');
+      const data = await response.json();
+      elements.bridgeStatus.textContent = data.grpc_target || 'Ready';
+    } catch (error) {
+      elements.bridgeStatus.textContent = 'Unavailable';
+      setError(`Bridge check failed: ${error.message}`);
+    }
+  }
+
+  async function loadSymbols() {
+    try {
+      const response = await fetch('/api/symbols');
+      const data = await response.json();
+      state.symbols = data.symbols || [];
+      renderSymbols();
+      if (state.symbols.length > 0) {
+        selectSymbol(state.symbols[0].symbol);
+      }
+    } catch (error) {
+      elements.symbolList.innerHTML = `<div class="empty">Failed to load symbols: ${escapeHtml(error.message)}</div>`;
+      setError(`Loading symbols failed: ${error.message}`);
+    }
+  }
+
+  function renderSymbols() {
+    if (state.symbols.length === 0) {
+      elements.symbolList.innerHTML = '<div class="empty">No symbols returned by service.</div>';
+      return;
+    }
+
+    elements.symbolList.innerHTML = state.symbols.map((item) => `
+      <div class="symbol-item ${item.symbol === state.selectedSymbol ? 'active' : ''}" data-symbol="${escapeAttr(item.symbol)}">
+        <strong>${escapeHtml(item.symbol)}</strong>
+        <span>${escapeHtml(item.company_name)}</span>
+      </div>
+    `).join('');
+
+    elements.symbolList.querySelectorAll('.symbol-item').forEach((node) => {
+      node.addEventListener('click', () => selectSymbol(node.dataset.symbol));
+    });
+  }
+
+  async function selectSymbol(symbol) {
+    disconnectStream();
+    state.selectedSymbol = symbol.toUpperCase();
+    state.selectedMeta = state.symbols.find((item) => item.symbol === state.selectedSymbol) || {
+      symbol: state.selectedSymbol,
+      company_name: state.selectedSymbol,
+      sector: 'Custom',
+    };
+    state.updates = [];
+    elements.customSymbol.value = state.selectedSymbol;
+    elements.selectedSymbolPill.textContent = state.selectedSymbol;
+    elements.streamTarget.textContent = state.selectedSymbol;
+    renderSymbols();
+    renderSnapshot(null);
+    renderLog();
+    await fetchSnapshot(state.selectedSymbol);
+    connectStream(state.selectedSymbol);
+  }
+
+  async function fetchSnapshot(symbol) {
+    try {
+      const response = await fetch(`/api/price/${encodeURIComponent(symbol)}`);
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error_message || 'Snapshot request failed');
+      }
+      addUpdate(data.current_price, true);
+      clearError();
+    } catch (error) {
+      setError(`Snapshot failed: ${error.message}`);
+    }
+  }
+
+  function connectStream(symbol) {
+    const clientId = (elements.clientId.value || 'web-dashboard').trim();
+    const streamUrl = `/api/stream?symbol=${encodeURIComponent(symbol)}&client_id=${encodeURIComponent(clientId)}`;
+    const eventSource = new EventSource(streamUrl);
+    state.eventSource = eventSource;
+
+    elements.connectionStatus.textContent = 'Connecting';
+    elements.marketStatus.textContent = `Connecting stream for ${symbol}`;
+    elements.streamDot.classList.remove('connected');
+
+    eventSource.onopen = () => {
+      elements.connectionStatus.textContent = 'Streaming';
+      elements.marketStatus.textContent = `Live stream connected for ${symbol}`;
+      elements.streamDot.classList.add('connected');
+      clearError();
+    };
+
+    eventSource.onmessage = (event) => {
+      const update = JSON.parse(event.data);
+      addUpdate(update, false);
+      clearError();
+    };
+
+    eventSource.addEventListener('error', (event) => {
+      const payload = event.data ? JSON.parse(event.data) : { details: 'stream interrupted' };
+      setError(`Stream error: ${payload.details || 'unknown error'}`);
+    });
+
+    eventSource.onerror = () => {
+      elements.connectionStatus.textContent = 'Disconnected';
+      elements.marketStatus.textContent = `Stream disconnected for ${symbol}`;
+      elements.streamDot.classList.remove('connected');
+    };
+  }
+
+  function disconnectStream() {
+    if (state.eventSource) {
+      state.eventSource.close();
+      state.eventSource = null;
+    }
+  }
+
+  function addUpdate(update, replaceFirst) {
+    if (replaceFirst && state.updates.length > 0) {
+      state.updates[0] = update;
+    } else {
+      state.updates.unshift(update);
+    }
+    state.updates = state.updates.slice(0, 24);
+    renderSnapshot(state.updates[0]);
+    renderLog();
+    renderSparkline();
+  }
+
+  function renderSnapshot(update) {
+    const meta = state.selectedMeta || { symbol: '-', company_name: 'Select a symbol', sector: '-' };
+    elements.companyName.textContent = meta.company_name || meta.symbol;
+    elements.companySector.textContent = `${meta.symbol} · ${meta.sector || 'Unknown sector'}`;
+
+    if (!update) {
+      elements.priceValue.textContent = '$0.00';
+      elements.priceDelta.textContent = 'Awaiting update';
+      elements.priceDelta.className = 'delta';
+      elements.timestampValue.textContent = '-';
+      elements.volumeValue.textContent = '-';
+      elements.sessionValue.textContent = '-';
+      elements.updateCount.textContent = String(state.updates.length);
+      return;
+    }
+
+    const changeClass = update.change >= 0 ? 'rise' : 'fall';
+    const sign = update.change >= 0 ? '+' : '';
+
+    elements.priceValue.textContent = formatCurrency(update.price);
+    elements.priceDelta.textContent = `${sign}${formatCurrency(update.change)} · ${sign}${Number(update.change_percent).toFixed(2)}%`;
+    elements.priceDelta.className = `delta ${changeClass}`;
+    elements.timestampValue.textContent = formatTimestamp(update.timestamp);
+    elements.volumeValue.textContent = Number(update.volume).toLocaleString();
+    elements.sessionValue.textContent = update.market_status || 'UNKNOWN';
+    elements.updateCount.textContent = String(state.updates.length);
+  }
+
+  function renderLog() {
+    if (state.updates.length === 0) {
+      elements.eventLog.innerHTML = '<div class="empty">Connect to a symbol to start streaming updates.</div>';
+      return;
+    }
+
+    elements.eventLog.innerHTML = state.updates.map((update) => {
+      const tone = update.change >= 0 ? 'rise' : 'fall';
+      const sign = update.change >= 0 ? '+' : '';
+      return `
+        <div class="event">
+          <time>${escapeHtml(formatTimestamp(update.timestamp))}</time>
+          <div>
+            <strong>${escapeHtml(update.symbol)} · ${escapeHtml(update.market_status || 'UNKNOWN')}</strong>
+            <span class="${tone}" style="color:${update.change >= 0 ? 'var(--rise)' : 'var(--fall)'}">${sign}${formatCurrency(update.change)} (${sign}${Number(update.change_percent).toFixed(2)}%)</span>
+          </div>
+          <div class="volume">Vol ${Number(update.volume).toLocaleString()}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderSparkline() {
+    if (state.updates.length < 2) {
+      elements.sparkLine.setAttribute('d', '');
+      elements.sparkFill.setAttribute('d', '');
+      return;
+    }
+
+    const points = [...state.updates].reverse().map((item) => Number(item.price));
+    const min = Math.min(...points);
+    const max = Math.max(...points);
+    const spread = Math.max(max - min, 1);
+    const width = 640;
+    const height = 180;
+    const step = width / Math.max(points.length - 1, 1);
+
+    const coords = points.map((price, index) => {
+      const x = index * step;
+      const y = height - ((price - min) / spread) * (height - 18) - 9;
+      return [x, y];
+    });
+
+    const linePath = coords.map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`).join(' ');
+    const fillPath = `${linePath} L ${width} ${height} L 0 ${height} Z`;
+    elements.sparkLine.setAttribute('d', linePath);
+    elements.sparkFill.setAttribute('d', fillPath);
+  }
+
+  function setError(message) {
+    elements.errorValue.textContent = message;
+  }
+
+  function clearError() {
+    elements.errorValue.textContent = 'None';
+  }
+
+  function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+  }
+
+  function formatTimestamp(timestamp) {
+    return new Date(Number(timestamp) * 1000).toLocaleTimeString();
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value);
+  }
+
+  boot();
+</script>
+</body>
+</html>

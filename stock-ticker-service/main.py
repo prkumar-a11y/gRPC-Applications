@@ -6,6 +6,7 @@ import time
 import threading
 import random
 import logging
+import os
 import signal
 import sys
 from pathlib import Path
@@ -416,7 +417,9 @@ def serve():
     )
     reflection.enable_server_reflection(SERVICE_NAMES, server)
     
-    listen_addr = '0.0.0.0:50053'
+    listen_host = os.getenv('STOCK_TICKER_HOST', '0.0.0.0')
+    listen_port = os.getenv('STOCK_TICKER_PORT', '50053')
+    listen_addr = f'{listen_host}:{listen_port}'
     server.add_insecure_port(listen_addr)
     
     logger.info(f"Starting Stock Ticker Service on {listen_addr}")

@@ -3,3 +3,4 @@ grpcio-tools==1.59.0
 grpcio-reflection==1.59.0
 grpcio-health-checking==1.59.0
 protobuf==4.24.4
+Flask==3.0.3

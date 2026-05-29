@@ -8,6 +8,8 @@ User=grpc
 Group=grpc
 WorkingDirectory=/opt/stock-ticker-service
 Environment=PYTHONUNBUFFERED=1
+Environment=STOCK_TICKER_HOST=127.0.0.1
+Environment=STOCK_TICKER_PORT=50053
 ExecStart=/opt/stock-ticker-service/venv/bin/python /opt/stock-ticker-service/main.py
 Restart=on-failure
 RestartSec=10
