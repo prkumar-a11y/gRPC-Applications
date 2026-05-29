@@ -1,0 +1,21 @@
+[Unit]
+Description=Stock Ticker gRPC Server
+After=network.target
+
+[Service]
+Type=simple
+User=grpc
+Group=grpc
+WorkingDirectory=/opt/stock-ticker-service
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/stock-ticker-service/venv/bin/python /opt/stock-ticker-service/main.py
+Restart=on-failure
+RestartSec=10
+
+NoNewPrivileges=true
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=stock-ticker
+
+[Install]
+WantedBy=multi-user.target
