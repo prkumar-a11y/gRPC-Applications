@@ -60,7 +60,7 @@ if [[ ! -f "${INSTALL_DIR}/generated/job_orchestrator_pb2.py" || ! -f "${INSTALL
     exit 1
 fi
 
-sed -i 's/^import job_orchestrator_pb2$/from . import job_orchestrator_pb2/' "${INSTALL_DIR}/generated/job_orchestrator_pb2_grpc.py"
+sed -i 's/^import job_orchestrator_pb2 as /from . import job_orchestrator_pb2 as /' "${INSTALL_DIR}/generated/job_orchestrator_pb2_grpc.py"
 
 cp "${APP_SOURCE_DIR}/deploy/${SERVICE_NAME}.service" "/etc/systemd/system/${SERVICE_NAME}.service"
 chmod 644 "/etc/systemd/system/${SERVICE_NAME}.service"

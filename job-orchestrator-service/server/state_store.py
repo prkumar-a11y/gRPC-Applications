@@ -1,6 +1,6 @@
 """In-memory state store for jobs and logs"""
 import asyncio
-from typing import Dict, List, Set, Callable, Awaitable
+from typing import Dict, List, Set, Callable, Awaitable, Optional
 from collections import defaultdict
 import logging
 
@@ -31,7 +31,7 @@ class StateStore:
             logger.info(f"Created job {job.job_id}: {job.name}")
             return job
     
-    async def get_job(self, job_id: str) -> Job | None:
+    async def get_job(self, job_id: str) -> Optional[Job]:
         """Get job by ID"""
         return self.jobs.get(job_id)
     

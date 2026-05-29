@@ -96,5 +96,5 @@ If protobuf generation fails during install:
 cd /opt/job-orchestrator-service
 sudo ./venv/bin/pip install -r requirements.txt
 sudo ./venv/bin/python -m grpc_tools.protoc -Iproto --python_out=generated --grpc_python_out=generated proto/job_orchestrator.proto
-sudo sed -i 's/^import job_orchestrator_pb2$/from . import job_orchestrator_pb2/' generated/job_orchestrator_pb2_grpc.py
+sudo sed -i 's/^import job_orchestrator_pb2 as /from . import job_orchestrator_pb2 as /' generated/job_orchestrator_pb2_grpc.py
 ```
