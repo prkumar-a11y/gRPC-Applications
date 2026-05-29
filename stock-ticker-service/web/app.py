@@ -11,16 +11,16 @@ from flask import Flask, Response, jsonify, request, send_from_directory, stream
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
 PROTO_CANDIDATES = [
-    PROJECT_DIR.parent / 'proto',
-    PROJECT_DIR / 'proto',
+    PROJECT_DIR.parent,
+    PROJECT_DIR,
 ]
 
 for proto_dir in PROTO_CANDIDATES:
     if proto_dir.exists() and str(proto_dir) not in sys.path:
         sys.path.insert(0, str(proto_dir))
 
-import stock_ticker_pb2 as stock_ticker_pb2
-import stock_ticker_pb2_grpc as stock_ticker_pb2_grpc
+from proto import stock_ticker_pb2 as stock_ticker_pb2
+from proto import stock_ticker_pb2_grpc as stock_ticker_pb2_grpc
 
 
 app = Flask(__name__, static_folder=str(BASE_DIR), static_url_path='')
