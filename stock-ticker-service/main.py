@@ -20,7 +20,7 @@ PROTO_ROOTS = [
     PROJECT_DIR / 'app',
 ]
 
-for proto_root in PROTO_ROOTS:
+for proto_root in reversed(PROTO_ROOTS):
     if proto_root.exists() and str(proto_root) not in sys.path:
         sys.path.insert(0, str(proto_root))
 

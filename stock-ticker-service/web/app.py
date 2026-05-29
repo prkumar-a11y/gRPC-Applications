@@ -15,7 +15,7 @@ PROTO_CANDIDATES = [
     PROJECT_DIR,
 ]
 
-for proto_dir in PROTO_CANDIDATES:
+for proto_dir in reversed(PROTO_CANDIDATES):
     if proto_dir.exists() and str(proto_dir) not in sys.path:
         sys.path.insert(0, str(proto_dir))
 
