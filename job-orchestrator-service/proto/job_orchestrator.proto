@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package joborchestrator;
+
+option go_package = "github.com/job-orchestrator-service/proto;joborchestrator";
+
+// The Job Orchestrator service definition - demonstrates all 4 gRPC patterns
+service JobOrchestrator {
+  // UNARY: Submit a new job and get immediate acknowledgment
+  rpc SubmitJob(JobSpec) returns (JobAck);
+  
+  // UNARY: Get current status of a job
+  rpc GetJobStatus(JobId) returns (JobStatus);
+  
+  // CLIENT STREAMING: Push multiple log lines and get summary
+  rpc PushLogs(stream LogLine) returns (LogSummary);
+  
+  // SERVER STREAMING: Watch job updates in real-time
+  rpc WatchJob(JobId) returns (stream JobUpdate);
+  
+  // BIDIRECTIONAL STREAMING: Interactive session for job control
+  rpc InteractiveSession(stream ControlMessage) returns (stream SessionEvent);
+  
+  // BIDIRECTIONAL STREAMING: Sized data exchange for testing bidirectional streams
+  rpc SizedInteractiveSession(stream SizedDataPacket) returns (stream SizedDataPacket);
+  
+  // SERVER STREAMING: Stress/load testing endpoint - generate sized response
+  rpc GetSizedResponse(SizedResponseRequest) returns (stream SizedResponseChunk);
+  
+  // UNARY: Stress/load testing endpoint - generate single sized response
+  rpc UnarySizedResponse(SizedResponseRequest) returns (UnarySizedResponseData);
+  
+  // UNARY: Send only trailers with no response body
+  rpc JustTrailers(Empty) returns (Empty);
+}
+
+// Job specification for submission
+message JobSpec {
+  string name = 1;                    // Job name (e.g., "smoke-tests")
+  map<string, string> params = 2;     // Job parameters (e.g., env=qa, suite=smoke)
+}
+
+// Job identifier
+message JobId {
+  string id = 1;                      // Unique job ID
+}
+
+// Job acknowledgment response
+message JobAck {
+  string job_id = 1;                  // Assigned job ID
+  string message = 2;                 // Success message
+}
+
+// Job status response
+message JobStatus {
+  string job_id = 1;                  // Job ID
+  string state = 2;                   // PENDING/RUNNING/COMPLETED/FAILED/PAUSED
+  string message = 3;                 // Status message or error details
+  int64 created_at = 4;               // Creation timestamp (milliseconds)
+  int64 updated_at = 5;               // Last update timestamp
+  map<string, string> params = 6;     // Original job parameters
+}
+
+// Single log line
+message LogLine {
+  string job_id = 1;                  // Associated job ID
+  string line = 2;                    // Log line content
+  int64 timestamp_ms = 3;             // Log timestamp (milliseconds)
+  string level = 4;                   // Log level (DEBUG/INFO/WARN/ERROR)
+}
+
+// Log ingestion summary
+message LogSummary {
+  string job_id = 1;                  // Job ID
+  int64 total_lines = 2;              // Total lines received
+  int64 error_lines = 3;              // Lines containing errors
+  int64 warn_lines = 4;               // Lines containing warnings
+  string message = 5;                 // Summary message
+}
+
+// Job update event (server streaming)
+message JobUpdate {
+  string job_id = 1;                  // Job ID
+  string state = 2;                   // Current state
+  string detail = 3;                  // Update details
+  int64 timestamp_ms = 4;             // Update timestamp
+  int32 progress_percent = 5;         // Progress percentage (0-100)
+}
+
+// Control message (client to server in bidi stream)
+message ControlMessage {
+  string job_id = 1;                  // Target job ID
+  string command = 2;                 // PAUSE/RESUME/CANCEL/SET_LOG_LEVEL/GET_STATUS
+  string arg = 3;                     // Optional argument (e.g., "DEBUG" for SET_LOG_LEVEL)
+}
+
+// Session event (server to client in bidi stream)
+message SessionEvent {
+  string job_id = 1;                  // Job ID
+  string event_type = 2;              // STATUS/LOG/ACK/ERROR
+  string payload = 3;                 // Event payload
+  int64 timestamp_ms = 4;             // Event timestamp
+}
+
+// Request for sized response (stress testing)
+message SizedResponseRequest {
+  int64 stream_size = 1;              // Size of each stream message in bytes
+  int64 total_size = 2;               // Total size of response across all streams in bytes
+  int32 delay_ms = 3;                 // Optional delay between chunks in milliseconds (default: 0)
+  bool compressible = 4;              // Generate compressible data (default: false = random)
+  bool include_metadata = 5;          // Include chunk metadata (default: true)
+  float error_rate = 6;               // Probability of error (0.0-1.0, default: 0.0)
+}
+
+// Response chunk for sized response
+message SizedResponseChunk {
+  int32 chunk_number = 1;             // Sequential chunk number (1-indexed)
+  int32 total_chunks = 2;             // Total number of chunks
+  bytes data = 3;                     // Chunk data
+  int64 chunk_size = 4;               // Size of this chunk in bytes
+  int64 total_sent = 5;               // Total bytes sent so far
+  int64 timestamp_ms = 6;             // Chunk timestamp
+  string checksum = 7;                // Optional MD5 checksum of data
+}
+
+// Unary sized response data
+message UnarySizedResponseData {
+  bytes data = 1;                     // Response data
+  int64 data_size = 2;                // Size of data in bytes
+  int64 timestamp_ms = 3;             // Response timestamp
+  string checksum = 4;                // Optional MD5 checksum of data
+}
+
+// Sized data packet for bidirectional streaming
+message SizedDataPacket {
+  string packet_id = 1;               // Unique packet identifier
+  string log_file = 2;                // Log file content or path
+  bytes data = 3;                     // Binary data payload
+  int64 data_size = 4;                // Size of data in bytes
+  int64 timestamp_ms = 5;             // Packet timestamp
+  map<string, string> metadata = 6;   // Additional metadata (e.g., filename, encoding)
+  bool processed = 7;                 // Whether this packet has been processed (server sets this)
+  string checksum = 8;                // Optional MD5 checksum of data
+  string processing_info = 9;         // Server processing details
+}
+
+// Empty message (no fields)
+message Empty {
+}

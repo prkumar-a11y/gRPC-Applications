@@ -1,0 +1,5 @@
+grpcio==1.76.0
+grpcio-tools==1.76.0
+grpcio-reflection==1.76.0
+textual==0.47.1
+rich==13.7.0
