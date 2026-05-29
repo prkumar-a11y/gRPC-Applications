@@ -42,6 +42,7 @@ cp -R "${APP_SOURCE_DIR}/." "${INSTALL_DIR}/app/"
 cp "${APP_SOURCE_DIR}/main.py" "${INSTALL_DIR}/main.py"
 rm -rf "${INSTALL_DIR}/proto"
 cp -R "${APP_SOURCE_DIR}/proto" "${INSTALL_DIR}/proto"
+rm -rf "${INSTALL_DIR}/app/proto"
 cp "${APP_SOURCE_DIR}/requirements.txt" "${INSTALL_DIR}/requirements.txt"
 cp "${APP_SOURCE_DIR}/generate.sh" "${INSTALL_DIR}/generate.sh"
 
