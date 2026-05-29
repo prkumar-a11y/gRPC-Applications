@@ -541,6 +541,18 @@
   </div>
 
 <script>
+  function appBasePath() {
+    const path = window.location.pathname.replace(/\/+$/, '');
+    if (path === '/stock-ticker' || path.startsWith('/stock-ticker/')) {
+      return '/stock-ticker';
+    }
+    return '';
+  }
+
+  const BASE_PATH = appBasePath();
+  const API_BASE = `${BASE_PATH}/api`;
+  const HEALTH_URL = `${BASE_PATH}/healthz`;
+
   const state = {
     symbols: [],
     selectedSymbol: '',
@@ -599,7 +611,7 @@
 
   async function checkBridge() {
     try {
-      const response = await fetch('/healthz');
+      const response = await fetch(HEALTH_URL);
       const data = await response.json();
       elements.bridgeStatus.textContent = data.grpc_target || 'Ready';
     } catch (error) {
@@ -610,7 +622,7 @@
 
   async function loadSymbols() {
     try {
-      const response = await fetch('/api/symbols');
+      const response = await fetch(`${API_BASE}/symbols`);
       const data = await response.json();
       state.symbols = data.symbols || [];
       renderSymbols();
@@ -662,7 +674,7 @@
 
   async function fetchSnapshot(symbol) {
     try {
-      const response = await fetch(`/api/price/${encodeURIComponent(symbol)}`);
+      const response = await fetch(`${API_BASE}/price/${encodeURIComponent(symbol)}`);
       const data = await response.json();
       if (!response.ok || !data.success) {
         throw new Error(data.error_message || 'Snapshot request failed');
@@ -676,7 +688,7 @@
 
   function connectStream(symbol) {
     const clientId = (elements.clientId.value || 'web-dashboard').trim();
-    const streamUrl = `/api/stream?symbol=${encodeURIComponent(symbol)}&client_id=${encodeURIComponent(clientId)}`;
+    const streamUrl = `${API_BASE}/stream?symbol=${encodeURIComponent(symbol)}&client_id=${encodeURIComponent(clientId)}`;
     const eventSource = new EventSource(streamUrl);
     state.eventSource = eventSource;
 

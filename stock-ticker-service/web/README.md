@@ -19,6 +19,13 @@ The bridge calls the gRPC service and exposes browser-friendly endpoints:
 - `GET /api/price/<symbol>` returns a JSON snapshot
 - `GET /api/stream?symbol=AAPL` streams updates over Server-Sent Events
 
+When proxied through Apache on `/stock-ticker/`, the browser-facing URLs become:
+
+- `GET /stock-ticker/`
+- `GET /stock-ticker/api/symbols`
+- `GET /stock-ticker/api/price/<symbol>`
+- `GET /stock-ticker/api/stream?symbol=AAPL`
+
 ## Run The Web UI
 
 Start the gRPC backend first:
@@ -44,6 +51,12 @@ Open the dashboard at:
 
 ```text
 http://127.0.0.1:8080
+```
+
+If Apache is proxying the UI under TLS, open:
+
+```text
+https://your-hostname/stock-ticker/
 ```
 
 Optional environment variables:

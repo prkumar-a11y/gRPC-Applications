@@ -48,7 +48,7 @@ sudo journalctl -u stock-ticker -f
 ```
 
 By default, the installed `systemd` service binds the gRPC backend to `127.0.0.1:50053` so it can sit behind a reverse proxy on `443`.
-The installed web bridge binds to `127.0.0.1:8080` and serves the dashboard plus browser-friendly `/api/*` endpoints.
+The installed web bridge binds to `127.0.0.1:8080` by default, or whatever value you set in `STOCK_TICKER_WEB_PORT`, and serves the dashboard plus browser-friendly `/api/*` endpoints.
 
 ## Verify The Port
 
@@ -90,13 +90,13 @@ sudo systemctl reload apache2
 After the two systemd services are running and Apache is reloaded, the stock ticker browser page is available at:
 
 ```text
-https://your-hostname/
+https://your-hostname/stock-ticker/
 ```
 
 With Apache proxying TLS on `443`, test externally with:
 
 ```bash
-curl -k https://your-hostname/healthz
+curl -k https://your-hostname/stock-ticker/healthz
 grpcurl your-hostname:443 list
 grpcurl -d '{"symbol":"AAPL"}' your-hostname:443 stockticker.StockTickerService/GetCurrentPrice
 grpcurl -d '{"symbol":"AAPL:5","client_id":"grpcurl-test"}' your-hostname:443 stockticker.StockTickerService/SubscribeToTicker
