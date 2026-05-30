@@ -43,7 +43,7 @@ sudo systemctl status job-orchestrator
 sudo journalctl -u job-orchestrator -f
 ```
 
-By default, the installed service binds to `0.0.0.0:50055`.
+By default, the installed service binds to `127.0.0.1:50055` so it can sit safely behind Apache on `443`.
 
 To override the bind address or port without editing the unit file:
 
@@ -55,7 +55,7 @@ Then add:
 
 ```ini
 [Service]
-Environment=JOB_ORCHESTRATOR_HOST=127.0.0.1
+Environment=JOB_ORCHESTRATOR_HOST=0.0.0.0
 Environment=JOB_ORCHESTRATOR_PORT=50055
 ```
 
@@ -79,6 +79,44 @@ Install `grpcurl` if needed, then run:
 ```bash
 grpcurl -plaintext localhost:50055 list
 grpcurl -plaintext -d '{"name":"smoke-tests","params":{"env":"qa"}}' localhost:50055 joborchestrator.JobOrchestrator/SubmitJob
+```
+
+## Apache On 443
+
+Enable the required modules:
+
+```bash
+sudo a2enmod ssl proxy proxy_http2 headers
+sudo systemctl restart apache2
+```
+
+Install the sample vhost from `deploy/apache-job-orchestrator-443.conf` into your Apache site configuration, then update `ServerName` and certificate paths.
+
+Example install steps on Ubuntu:
+
+```bash
+sudo cp deploy/apache-job-orchestrator-443.conf /etc/apache2/sites-available/job-orchestrator.conf
+sudoedit /etc/apache2/sites-available/job-orchestrator.conf
+sudo a2ensite job-orchestrator.conf
+sudo apache2ctl configtest
+sudo systemctl reload apache2
+```
+
+After Apache is reloaded and `job-orchestrator` is running, test externally with:
+
+```bash
+grpcurl your-hostname:443 list
+grpcurl -d '{"name":"smoke-tests","params":{"env":"qa"}}' your-hostname:443 joborchestrator.JobOrchestrator/SubmitJob
+```
+
+If you use a self-signed certificate, add `-insecure` to `grpcurl`.
+
+## Direct Remote Access
+
+If you are not using Apache on `443`, change the systemd host override to `0.0.0.0`, restart the service, open `50055/tcp`, and connect directly to the server IP:
+
+```bash
+grpcurl -plaintext 198.18.76.38:50055 list
 ```
 
 ## Troubleshooting

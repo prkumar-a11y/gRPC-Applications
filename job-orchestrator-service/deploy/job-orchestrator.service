@@ -8,7 +8,7 @@ User=grpc
 Group=grpc
 WorkingDirectory=/opt/job-orchestrator-service
 Environment=PYTHONUNBUFFERED=1
-Environment=JOB_ORCHESTRATOR_HOST=0.0.0.0
+Environment=JOB_ORCHESTRATOR_HOST=127.0.0.1
 Environment=JOB_ORCHESTRATOR_PORT=50055
 ExecStart=/opt/job-orchestrator-service/venv/bin/python -m server.main
 Restart=on-failure

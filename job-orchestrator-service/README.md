@@ -297,6 +297,8 @@ sudo ./deploy/install.sh
 
 This installs the service into `/opt/job-orchestrator-service` and registers a `systemd` unit named `job-orchestrator`.
 
+The default Linux service binds to `127.0.0.1:50055` so Apache can proxy gRPC on `443`. If you want direct remote access on `50055`, override `JOB_ORCHESTRATOR_HOST=0.0.0.0` with `systemctl edit`.
+
 Service commands:
 
 ```bash
@@ -307,6 +309,8 @@ sudo journalctl -u job-orchestrator -f
 ```
 
 Full Linux deployment notes are in `deploy/DEPLOYMENT.md`.
+
+For Apache/TLS publishing on `443`, use the sample vhost in `deploy/apache-job-orchestrator-443.conf`.
 
 ### Docker Compose Integration
 
