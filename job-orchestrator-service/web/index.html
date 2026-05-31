@@ -578,7 +578,14 @@ ERROR: Test case 2 failed</textarea>
       element.textContent = message;
     }
 
-    function exampleBlock(title, badgeClass, badgeText, description, key, grpcurl, response) {
+    function exampleBlock(title, badgeClass, badgeText, description, key, grpcurl, response, restExample = '', restLabel = 'REST') {
+      const restTab = restExample ? `<button class="example-tab" data-target="${key}-rest">${restLabel}</button>` : '';
+      const restPanel = restExample ? `
+          <div class="example-panel" id="${key}-rest">
+            <div class="copy-row"><button class="copy-btn" data-copy="${key}-rest-code">Copy</button></div>
+            <pre class="code-block" id="${key}-rest-code">${escapeHtml(restExample)}</pre>
+          </div>` : '';
+
       return `
         <article class="example-card" data-example="${key}">
           <div class="example-head">
@@ -590,12 +597,14 @@ ERROR: Test case 2 failed</textarea>
           </div>
           <div class="example-tabs">
             <button class="example-tab active" data-target="${key}-grpcurl">grpcurl</button>
+            ${restTab}
             <button class="example-tab" data-target="${key}-response">response</button>
           </div>
           <div class="example-panel active" id="${key}-grpcurl">
             <div class="copy-row"><button class="copy-btn" data-copy="${key}-grpcurl-code">Copy</button></div>
             <pre class="code-block" id="${key}-grpcurl-code">${escapeHtml(grpcurl)}</pre>
           </div>
+          ${restPanel}
           <div class="example-panel" id="${key}-response">
             <div class="response-block">${escapeHtml(response)}</div>
           </div>
@@ -707,7 +716,12 @@ ERROR: Test case 2 failed</textarea>
           `{
   "job_id": "${jobId}",
   "message": "Job 'smoke-tests' submitted successfully"
-}`
+        }`,
+            `curl -X POST http://127.0.0.1:8082${API_BASE.replace(BASE_PATH, '')}/jobs \\
+          -H "Content-Type: application/json" \\
+          -d '{"name":"smoke-tests","params":{"env":"qa","suite":"smoke","steps":"10"}}'\n\n# Via Apache/TLS path:\ncurl -X POST https://your-hostname${BASE_PATH || '/job-orchestrator'}${API_BASE.slice(BASE_PATH.length)}/jobs \\
+          -H "Content-Type: application/json" \\
+          -d '{"name":"smoke-tests","params":{"env":"qa","suite":"smoke","steps":"10"}}'`
         ),
         exampleBlock(
           'GetJobStatus',
@@ -727,7 +741,8 @@ ERROR: Test case 2 failed</textarea>
     "suite": "smoke",
     "steps": "10"
   }
-}`
+}`,
+          `curl http://127.0.0.1:8082${API_BASE.replace(BASE_PATH, '')}/jobs/${jobId}\n\n# Via Apache/TLS path:\ncurl https://your-hostname${BASE_PATH || '/job-orchestrator'}${API_BASE.slice(BASE_PATH.length)}/jobs/${jobId}`
         ),
         exampleBlock(
           'WatchJob',
@@ -749,7 +764,9 @@ ERROR: Test case 2 failed</textarea>
   "detail": "Job completed successfully",
   "timestamp_ms": 1748652061000,
   "progress_percent": 100
-}`
+}`,
+          `# SSE stream via the browser bridge\ncurl -N http://127.0.0.1:8082${API_BASE.replace(BASE_PATH, '')}/jobs/${jobId}/watch\n\n# Via Apache/TLS path:\ncurl -N https://your-hostname${BASE_PATH || '/job-orchestrator'}${API_BASE.slice(BASE_PATH.length)}/jobs/${jobId}/watch`,
+          'REST (SSE)'
         ),
         exampleBlock(
           'PushLogs',
@@ -764,7 +781,12 @@ ERROR: Test case 2 failed</textarea>
   "error_lines": "1",
   "warn_lines": "1",
   "message": "Processed 3 log lines (1 errors, 1 warnings)"
-}`
+        }`,
+            `curl -X POST http://127.0.0.1:8082${API_BASE.replace(BASE_PATH, '')}/jobs/${jobId}/logs \\
+          -H "Content-Type: application/json" \\
+          -d '{"lines":["INFO: Starting test suite","WARN: Retrying flaky case","ERROR: Timeout in scenario 2"]}'\n\n# Via Apache/TLS path:\ncurl -X POST https://your-hostname${BASE_PATH || '/job-orchestrator'}${API_BASE.slice(BASE_PATH.length)}/jobs/${jobId}/logs \\
+          -H "Content-Type: application/json" \\
+          -d '{"lines":["INFO: Starting test suite","WARN: Retrying flaky case","ERROR: Timeout in scenario 2"]}'`
         ),
         exampleBlock(
           'InteractiveSession',
@@ -787,7 +809,12 @@ ERROR: Test case 2 failed</textarea>
   "job_id": "${jobId}",
   "event_type": "ACK",
   "payload": "Job paused"
-}`
+}`,
+          `curl -X POST http://127.0.0.1:8082${API_BASE.replace(BASE_PATH, '')}/jobs/${jobId}/control \\
+  -H "Content-Type: application/json" \\
+  -d '{"command":"PAUSE"}'\n\n# Via Apache/TLS path:\ncurl -X POST https://your-hostname${BASE_PATH || '/job-orchestrator'}${API_BASE.slice(BASE_PATH.length)}/jobs/${jobId}/control \\
+  -H "Content-Type: application/json" \\
+  -d '{"command":"PAUSE"}'`
         ),
         exampleBlock(
           'SizedInteractiveSession',
