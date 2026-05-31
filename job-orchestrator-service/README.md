@@ -334,6 +334,12 @@ Open:
 http://127.0.0.1:8082
 ```
 
+If Apache is enabled with the sample proxy config, open:
+
+```text
+https://your-hostname/job-orchestrator/
+```
+
 The page acts like an interactive README and control console for the main RPC flows. Full web notes are in `web/README.md`.
 
 ### Docker Compose Integration

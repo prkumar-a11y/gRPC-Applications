@@ -11,6 +11,8 @@ INSTALL_DIR="/opt/job-orchestrator-service"
 SERVICE_USER="grpc"
 SERVICE_NAME="job-orchestrator"
 PORT="50055"
+WEB_SERVICE_NAME="job-orchestrator-web"
+WEB_PORT="8082"
 APP_SOURCE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "================================"
@@ -38,6 +40,7 @@ find "${INSTALL_DIR}" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 cp -R "${APP_SOURCE_DIR}/server" "${INSTALL_DIR}/server"
 cp -R "${APP_SOURCE_DIR}/generated" "${INSTALL_DIR}/generated"
 cp -R "${APP_SOURCE_DIR}/proto" "${INSTALL_DIR}/proto"
+cp -R "${APP_SOURCE_DIR}/web" "${INSTALL_DIR}/web"
 cp -R "${APP_SOURCE_DIR}/deploy" "${INSTALL_DIR}/deploy"
 cp "${APP_SOURCE_DIR}/requirements.txt" "${INSTALL_DIR}/requirements.txt"
 cp "${APP_SOURCE_DIR}/generate.sh" "${INSTALL_DIR}/generate.sh"
@@ -64,13 +67,17 @@ sed -i 's/^import job_orchestrator_pb2 as /from . import job_orchestrator_pb2 as
 
 cp "${APP_SOURCE_DIR}/deploy/${SERVICE_NAME}.service" "/etc/systemd/system/${SERVICE_NAME}.service"
 chmod 644 "/etc/systemd/system/${SERVICE_NAME}.service"
+cp "${APP_SOURCE_DIR}/deploy/${WEB_SERVICE_NAME}.service" "/etc/systemd/system/${WEB_SERVICE_NAME}.service"
+chmod 644 "/etc/systemd/system/${WEB_SERVICE_NAME}.service"
 
 if command -v ufw >/dev/null 2>&1; then
     ufw allow "${PORT}/tcp" || true
+    ufw allow "${WEB_PORT}/tcp" || true
 fi
 
 if command -v firewall-cmd >/dev/null 2>&1 && systemctl is-active --quiet firewalld; then
     firewall-cmd --permanent --add-port="${PORT}/tcp"
+    firewall-cmd --permanent --add-port="${WEB_PORT}/tcp"
     firewall-cmd --reload
 fi
 
@@ -81,5 +88,8 @@ echo ""
 echo "Installation complete"
 echo "Start service:   systemctl start ${SERVICE_NAME}"
 echo "Enable service:  systemctl enable ${SERVICE_NAME}"
+echo "Start web:       systemctl start ${WEB_SERVICE_NAME}"
+echo "Enable web:      systemctl enable ${WEB_SERVICE_NAME}"
 echo "View logs:       journalctl -u ${SERVICE_NAME} -f"
 echo "Listen port:     ${PORT}"
+echo "Web port:        ${WEB_PORT}"

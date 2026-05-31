@@ -32,18 +32,22 @@ sudo ./install-job-orchestrator.sh
 - Copies the service into `/opt/job-orchestrator-service`
 - Creates a virtual environment and installs Python dependencies
 - Regenerates Python gRPC stubs from `proto/job_orchestrator.proto`
-- Installs a `systemd` unit named `job-orchestrator`
+- Installs `systemd` units named `job-orchestrator` and `job-orchestrator-web`
 
 ## Service Commands
 
 ```bash
 sudo systemctl start job-orchestrator
 sudo systemctl enable job-orchestrator
+sudo systemctl start job-orchestrator-web
+sudo systemctl enable job-orchestrator-web
 sudo systemctl status job-orchestrator
+sudo systemctl status job-orchestrator-web
 sudo journalctl -u job-orchestrator -f
 ```
 
 By default, the installed service binds to `127.0.0.1:50055` so it can sit safely behind Apache on `443`.
+The installed web bridge binds to `127.0.0.1:8082` by default and serves the browser page plus `/api/*` endpoints.
 
 To override the bind address or port without editing the unit file:
 
@@ -102,9 +106,16 @@ sudo apache2ctl configtest
 sudo systemctl reload apache2
 ```
 
-After Apache is reloaded and `job-orchestrator` is running, test externally with:
+After Apache is reloaded and both `job-orchestrator` and `job-orchestrator-web` are running, open:
+
+```text
+https://your-hostname/job-orchestrator/
+```
+
+Then test externally with:
 
 ```bash
+curl -k https://your-hostname/job-orchestrator/healthz
 grpcurl your-hostname:443 list
 grpcurl -d '{"name":"smoke-tests","params":{"env":"qa"}}' your-hostname:443 joborchestrator.JobOrchestrator/SubmitJob
 ```
@@ -125,7 +136,9 @@ If the service does not start:
 
 ```bash
 sudo systemctl status job-orchestrator
+sudo systemctl status job-orchestrator-web
 sudo journalctl -u job-orchestrator -n 100 --no-pager
+sudo journalctl -u job-orchestrator-web -n 100 --no-pager
 ```
 
 If protobuf generation fails during install:

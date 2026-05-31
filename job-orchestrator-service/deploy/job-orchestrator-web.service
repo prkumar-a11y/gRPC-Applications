@@ -1,0 +1,24 @@
+[Unit]
+Description=Job Orchestrator Web Bridge
+After=network.target job-orchestrator.service
+
+[Service]
+Type=simple
+User=grpc
+Group=grpc
+WorkingDirectory=/opt/job-orchestrator-service
+Environment=PYTHONUNBUFFERED=1
+Environment=JOB_ORCHESTRATOR_GRPC_ADDR=127.0.0.1:50055
+Environment=JOB_ORCHESTRATOR_WEB_HOST=127.0.0.1
+Environment=JOB_ORCHESTRATOR_WEB_PORT=8082
+ExecStart=/opt/job-orchestrator-service/venv/bin/python /opt/job-orchestrator-service/web/app.py
+Restart=on-failure
+RestartSec=10
+
+NoNewPrivileges=true
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=job-orchestrator-web
+
+[Install]
+WantedBy=multi-user.target

@@ -439,6 +439,18 @@ ERROR: Test case 2 failed</textarea>
   </div>
 
   <script>
+    function appBasePath() {
+      const path = window.location.pathname.replace(/\/+$/, '');
+      if (path === '/job-orchestrator' || path.startsWith('/job-orchestrator/')) {
+        return '/job-orchestrator';
+      }
+      return '';
+    }
+
+    const BASE_PATH = appBasePath();
+    const API_BASE = `${BASE_PATH}/api`;
+    const HEALTH_URL = `${BASE_PATH}/healthz`;
+
     const state = {
       eventSource: null,
       grpcTarget: '127.0.0.1:50055',
@@ -522,7 +534,7 @@ ERROR: Test case 2 failed</textarea>
     }
 
     async function loadOverview() {
-      const data = await fetchJSON('/api/overview');
+      const data = await fetchJSON(`${API_BASE}/overview`);
       state.grpcTarget = data.grpc_target;
       state.serviceName = data.service;
       elements.targetStat.textContent = data.grpc_target;
@@ -537,7 +549,7 @@ ERROR: Test case 2 failed</textarea>
 
     async function checkHealth() {
       try {
-        const data = await fetchJSON('/healthz');
+        const data = await fetchJSON(HEALTH_URL);
         elements.healthDot.className = 'dot ok';
         elements.healthLabel.textContent = 'Bridge online';
         elements.healthTarget.textContent = data.grpc_target;
@@ -567,7 +579,7 @@ ERROR: Test case 2 failed</textarea>
           params.steps = elements.jobSteps.value.trim();
         }
 
-        const data = await fetchJSON('/api/jobs', {
+        const data = await fetchJSON(`${API_BASE}/jobs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: elements.jobName.value.trim(), params })
@@ -593,7 +605,7 @@ ERROR: Test case 2 failed</textarea>
       }
 
       try {
-        const data = await fetchJSON(`/api/jobs/${encodeURIComponent(jobId)}`);
+        const data = await fetchJSON(`${API_BASE}/jobs/${encodeURIComponent(jobId)}`);
         const status = data.status;
         renderStatus({ ...status, progress_percent: extractProgress(status.message, elements.progressValue.textContent) });
         appendStream(`[status] ${status.job_id} ${status.state} ${status.message}`, status.state === 'FAILED' ? 'bad' : '');
@@ -620,7 +632,7 @@ ERROR: Test case 2 failed</textarea>
       }
 
       try {
-        const data = await fetchJSON(`/api/jobs/${encodeURIComponent(jobId)}/control`, {
+        const data = await fetchJSON(`${API_BASE}/jobs/${encodeURIComponent(jobId)}/control`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -649,7 +661,7 @@ ERROR: Test case 2 failed</textarea>
       const lines = elements.logLines?.value ? elements.logLines.value.split('\n') : document.getElementById('log-lines').value.split('\n');
 
       try {
-        const data = await fetchJSON(`/api/jobs/${encodeURIComponent(jobId)}/logs`, {
+        const data = await fetchJSON(`${API_BASE}/jobs/${encodeURIComponent(jobId)}/logs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ lines })
@@ -679,7 +691,7 @@ ERROR: Test case 2 failed</textarea>
       }
 
       stopWatch();
-      const stream = new EventSource(`/api/jobs/${encodeURIComponent(jobId)}/watch`);
+      const stream = new EventSource(`${API_BASE}/jobs/${encodeURIComponent(jobId)}/watch`);
       state.eventSource = stream;
       appendStream(`[watch] connected to ${jobId}`, 'ok');
 

@@ -50,6 +50,12 @@ Open the browser page at:
 http://127.0.0.1:8082
 ```
 
+If Apache is proxying the web UI under TLS, open:
+
+```text
+https://your-hostname/job-orchestrator/
+```
+
 Optional environment variables:
 
 ```bash
@@ -66,3 +72,10 @@ JOB_ORCHESTRATOR_WEB_HOST=0.0.0.0 JOB_ORCHESTRATOR_WEB_PORT=8082 python3 web/app
 - Sends `PAUSE`, `RESUME`, `CANCEL`, `SET_LOG_LEVEL`, and `GET_STATUS` commands
 - Pushes sample log lines through the client-streaming RPC
 - Shows ready-to-run `grpcurl` examples for the current backend target
+
+When proxied through Apache on `/job-orchestrator/`, the browser-facing URLs become:
+
+- `GET /job-orchestrator/`
+- `GET /job-orchestrator/healthz`
+- `GET /job-orchestrator/api/overview`
+- `POST /job-orchestrator/api/jobs`
