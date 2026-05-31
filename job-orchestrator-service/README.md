@@ -312,6 +312,30 @@ Full Linux deployment notes are in `deploy/DEPLOYMENT.md`.
 
 For Apache/TLS publishing on `443`, use the sample vhost in `deploy/apache-job-orchestrator-443.conf`.
 
+## Web UI
+
+The service now includes a browser-facing control page in `web/`.
+
+Start the backend:
+
+```bash
+python -m server.main
+```
+
+Then run the Flask bridge:
+
+```bash
+python web/app.py
+```
+
+Open:
+
+```text
+http://127.0.0.1:8082
+```
+
+The page acts like an interactive README and control console for the main RPC flows. Full web notes are in `web/README.md`.
+
 ### Docker Compose Integration
 
 Add to your existing `docker-compose.yaml`:
