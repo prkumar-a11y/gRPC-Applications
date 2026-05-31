@@ -272,6 +272,98 @@
       overflow: auto;
     }
 
+    .examples {
+      display: grid;
+      gap: 14px;
+    }
+
+    .example-card {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.68);
+      overflow: hidden;
+    }
+
+    .example-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 16px 18px 12px;
+    }
+
+    .example-head h3 {
+      margin: 0 0 4px;
+      font-size: 1.05rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge.unary { background: rgba(28, 124, 84, 0.12); color: var(--ok); }
+    .badge.server { background: rgba(181, 84, 47, 0.14); color: var(--accent-dark); }
+    .badge.client { background: rgba(217, 144, 0, 0.14); color: #8b5e00; }
+    .badge.bidi { background: rgba(92, 78, 167, 0.14); color: #4d3ca6; }
+
+    .example-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 18px 10px;
+    }
+
+    .example-tab {
+      border: 1px solid var(--line);
+      background: rgba(31, 41, 51, 0.04);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.82rem;
+    }
+
+    .example-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .example-panel {
+      display: none;
+      padding: 0 18px 18px;
+    }
+
+    .example-panel.active { display: block; }
+
+    .copy-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+
+    .copy-btn {
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .response-block {
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(31, 41, 51, 0.04);
+      border: 1px solid var(--line);
+      font: 13px/1.55 Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+
     .rpc-list {
       display: grid;
       gap: 10px;
@@ -430,9 +522,9 @@ ERROR: Test case 2 failed</textarea>
         </section>
 
         <section class="panel">
-          <h2>grpcurl Examples</h2>
-          <p class="sub">Use these directly against the backend or the Apache `443` proxy.</p>
-          <div class="code-block" id="grpcurl-snippets">Loading examples...</div>
+          <h2>gRPC Call Examples</h2>
+          <p class="sub">Copyable `grpcurl` examples for the main `joborchestrator.JobOrchestrator` RPCs, similar to the chat-service reference page.</p>
+          <div class="examples" id="grpc-examples">Loading examples...</div>
         </section>
       </div>
     </section>
@@ -473,7 +565,7 @@ ERROR: Test case 2 failed</textarea>
       commandFlash: document.getElementById('command-flash'),
       logsFlash: document.getElementById('logs-flash'),
       streamOutput: document.getElementById('stream-output'),
-      grpcurlSnippets: document.getElementById('grpcurl-snippets'),
+      grpcExamples: document.getElementById('grpc-examples'),
       stateValue: document.getElementById('state-value'),
       messageValue: document.getElementById('message-value'),
       progressValue: document.getElementById('progress-value'),
@@ -484,6 +576,38 @@ ERROR: Test case 2 failed</textarea>
     function setFlash(element, ok, message) {
       element.className = `flash ${ok ? 'ok' : 'bad'}`;
       element.textContent = message;
+    }
+
+    function exampleBlock(title, badgeClass, badgeText, description, key, grpcurl, response) {
+      return `
+        <article class="example-card" data-example="${key}">
+          <div class="example-head">
+            <div>
+              <h3>${title}</h3>
+              <div class="sub" style="margin:0;">${description}</div>
+            </div>
+            <span class="badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="example-tabs">
+            <button class="example-tab active" data-target="${key}-grpcurl">grpcurl</button>
+            <button class="example-tab" data-target="${key}-response">response</button>
+          </div>
+          <div class="example-panel active" id="${key}-grpcurl">
+            <div class="copy-row"><button class="copy-btn" data-copy="${key}-grpcurl-code">Copy</button></div>
+            <pre class="code-block" id="${key}-grpcurl-code">${escapeHtml(grpcurl)}</pre>
+          </div>
+          <div class="example-panel" id="${key}-response">
+            <div class="response-block">${escapeHtml(response)}</div>
+          </div>
+        </article>
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     }
 
     function clearFlash(element) {
@@ -563,12 +687,138 @@ ERROR: Test case 2 failed</textarea>
     function renderGrpcExamples() {
       const host = state.grpcTarget;
       const jobId = elements.jobId.value.trim() || '<job-id>';
-      elements.grpcurlSnippets.textContent = [
-        `grpcurl -plaintext ${host} list`,
-        `grpcurl -plaintext -d '{"name":"smoke-tests","params":{"env":"qa","steps":"10"}}' ${host} ${state.serviceName}/SubmitJob`,
-        `grpcurl -plaintext -d '{"id":"${jobId}"}' ${host} ${state.serviceName}/GetJobStatus`,
-        `grpcurl -plaintext -d '{"id":"${jobId}"}' ${host} ${state.serviceName}/WatchJob`,
-      ].join('\n\n');
+      const examples = [
+        exampleBlock(
+          'List Services',
+          'unary',
+          'discovery',
+          'Use reflection to confirm that Apache or the local backend is exposing the job orchestrator service.',
+          'list-services',
+          `grpcurl -plaintext ${host} list\n\n# Via Apache/TLS on 443:\ngrpcurl your-hostname:443 list`,
+          `joborchestrator.JobOrchestrator\ngrpc.reflection.v1alpha.ServerReflection`
+        ),
+        exampleBlock(
+          'SubmitJob',
+          'unary',
+          'unary',
+          'Create a new simulated job with runtime parameters such as environment, suite, and step count.',
+          'submit-job',
+          `grpcurl -plaintext -d '{"name":"smoke-tests","params":{"env":"qa","suite":"smoke","steps":"10"}}' ${host} ${state.serviceName}/SubmitJob\n\n# Via Apache/TLS on 443:\ngrpcurl -d '{"name":"smoke-tests","params":{"env":"qa","suite":"smoke","steps":"10"}}' your-hostname:443 ${state.serviceName}/SubmitJob`,
+          `{
+  "job_id": "${jobId}",
+  "message": "Job 'smoke-tests' submitted successfully"
+}`
+        ),
+        exampleBlock(
+          'GetJobStatus',
+          'unary',
+          'unary',
+          'Fetch the current state, timestamps, and original parameters for a single job id.',
+          'get-status',
+          `grpcurl -plaintext -d '{"id":"${jobId}"}' ${host} ${state.serviceName}/GetJobStatus\n\n# Via Apache/TLS on 443:\ngrpcurl -d '{"id":"${jobId}"}' your-hostname:443 ${state.serviceName}/GetJobStatus`,
+          `{
+  "job_id": "${jobId}",
+  "state": "RUNNING",
+  "message": "Processing step 4/10",
+  "created_at": 1748652000000,
+  "updated_at": 1748652021000,
+  "params": {
+    "env": "qa",
+    "suite": "smoke",
+    "steps": "10"
+  }
+}`
+        ),
+        exampleBlock(
+          'WatchJob',
+          'server',
+          'server streaming',
+          'Attach to a live stream of job updates until the job finishes or the client disconnects.',
+          'watch-job',
+          `grpcurl -plaintext -d '{"id":"${jobId}"}' ${host} ${state.serviceName}/WatchJob\n\n# Via Apache/TLS on 443:\ngrpcurl -d '{"id":"${jobId}"}' your-hostname:443 ${state.serviceName}/WatchJob`,
+          `{
+  "job_id": "${jobId}",
+  "state": "RUNNING",
+  "detail": "Processing step 5/10",
+  "timestamp_ms": 1748652029000,
+  "progress_percent": 50
+}
+{
+  "job_id": "${jobId}",
+  "state": "COMPLETED",
+  "detail": "Job completed successfully",
+  "timestamp_ms": 1748652061000,
+  "progress_percent": 100
+}`
+        ),
+        exampleBlock(
+          'PushLogs',
+          'client',
+          'client streaming',
+          'Send multiple log entries over one streaming request and receive an aggregate summary back.',
+          'push-logs',
+          `cat <<'EOF' | grpcurl -plaintext -d @ ${host} ${state.serviceName}/PushLogs\n{"job_id":"${jobId}","line":"INFO: Starting test suite","timestamp_ms":1748652000000,"level":"INFO"}\n{"job_id":"${jobId}","line":"WARN: Retrying flaky case","timestamp_ms":1748652005000,"level":"WARN"}\n{"job_id":"${jobId}","line":"ERROR: Timeout in scenario 2","timestamp_ms":1748652010000,"level":"ERROR"}\nEOF`,
+          `{
+  "job_id": "${jobId}",
+  "total_lines": "3",
+  "error_lines": "1",
+  "warn_lines": "1",
+  "message": "Processed 3 log lines (1 errors, 1 warnings)"
+}`
+        ),
+        exampleBlock(
+          'InteractiveSession',
+          'bidi',
+          'bidirectional',
+          'Send control commands like GET_STATUS and PAUSE over a bidi stream and receive ACK or STATUS events back.',
+          'interactive-session',
+          `cat <<'EOF' | grpcurl -plaintext -d @ ${host} ${state.serviceName}/InteractiveSession\n{"job_id":"${jobId}","command":"GET_STATUS"}\n{"job_id":"${jobId}","command":"PAUSE"}\n{"job_id":"${jobId}","command":"SET_LOG_LEVEL","arg":"DEBUG"}\nEOF`,
+          `{
+  "job_id": "",
+  "event_type": "ACK",
+  "payload": "Interactive session started. Available commands: PAUSE, RESUME, CANCEL, SET_LOG_LEVEL, GET_STATUS"
+}
+{
+  "job_id": "${jobId}",
+  "event_type": "STATUS",
+  "payload": "State: RUNNING, Progress: 40%, Message: Processing step 4/10"
+}
+{
+  "job_id": "${jobId}",
+  "event_type": "ACK",
+  "payload": "Job paused"
+}`
+        )
+      ];
+
+      elements.grpcExamples.innerHTML = examples.join('');
+      bindExampleInteractions();
+    }
+
+    function bindExampleInteractions() {
+      document.querySelectorAll('.example-tab').forEach((tab) => {
+        tab.onclick = () => {
+          const card = tab.closest('.example-card');
+          card.querySelectorAll('.example-tab').forEach((item) => item.classList.remove('active'));
+          card.querySelectorAll('.example-panel').forEach((panel) => panel.classList.remove('active'));
+          tab.classList.add('active');
+          const target = card.querySelector(`#${tab.dataset.target}`);
+          if (target) target.classList.add('active');
+        };
+      });
+
+      document.querySelectorAll('.copy-btn').forEach((button) => {
+        button.onclick = async () => {
+          const source = document.getElementById(button.dataset.copy);
+          if (!source) return;
+          await navigator.clipboard.writeText(source.innerText);
+          const previous = button.textContent;
+          button.textContent = 'Copied';
+          setTimeout(() => {
+            button.textContent = previous;
+          }, 1200);
+        };
+      });
     }
 
     async function submitJob() {
