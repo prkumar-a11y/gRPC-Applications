@@ -788,6 +788,88 @@ ERROR: Test case 2 failed</textarea>
   "event_type": "ACK",
   "payload": "Job paused"
 }`
+        ),
+        exampleBlock(
+          'SizedInteractiveSession',
+          'bidi',
+          'bidirectional',
+          'Exchange binary packets over a bidirectional stream for stress and transport testing, with the server echoing processed packet metadata.',
+          'sized-interactive-session',
+          `cat <<'EOF' | grpcurl -plaintext -d @ ${host} ${state.serviceName}/SizedInteractiveSession\n{"packet_id":"pkt-001","log_file":"smoke.log","data":"QUJDREVGR0g=","data_size":"8","timestamp_ms":1748652000000,"metadata":{"source":"grpcurl","encoding":"base64"}}\n{"packet_id":"pkt-002","log_file":"debug.log","data":"MTIzNDU2Nzg5MA==","data_size":"10","timestamp_ms":1748652001000,"metadata":{"source":"grpcurl","encoding":"base64"}}\nEOF`,
+          `{
+  "packet_id": "session-init",
+  "processed": true,
+  "processing_info": "Interactive session started.",
+  "metadata": {
+    "event_type": "ACK",
+    "session_status": "started"
+  }
+}
+{
+  "packet_id": "pkt-001",
+  "data_size": "8",
+  "processed": true,
+  "metadata": {
+    "source": "grpcurl",
+    "encoding": "base64",
+    "server_processed": "true"
+  }
+}`
+        ),
+        exampleBlock(
+          'GetSizedResponse',
+          'server',
+          'server streaming',
+          'Request a server-streamed payload split into chunks, with optional delay, checksum metadata, compression hints, and injected errors.',
+          'get-sized-response',
+          `grpcurl -plaintext -d '{"stream_size":"1024","total_size":"4096","delay_ms":100,"compressible":true,"include_metadata":true,"error_rate":0}' ${host} ${state.serviceName}/GetSizedResponse`,
+          `{
+  "chunk_number": 1,
+  "total_chunks": 4,
+  "chunk_size": "1024",
+  "total_sent": "1024",
+  "checksum": "3b371344772c85d37a8004977756a8a4"
+}
+{
+  "chunk_number": 2,
+  "total_chunks": 4,
+  "chunk_size": "1024",
+  "total_sent": "2048",
+  "checksum": "3b371344772c85d37a8004977756a8a4"
+}`
+        ),
+        exampleBlock(
+          'UnarySizedResponse',
+          'unary',
+          'unary',
+          'Request a single unary payload up to 100MB for buffer, compression, or proxy testing.',
+          'unary-sized-response',
+          `grpcurl -plaintext -d '{"total_size":"2048","compressible":true,"include_metadata":true,"error_rate":0}' ${host} ${state.serviceName}/UnarySizedResponse`,
+          `{
+  "data_size": "2048",
+  "timestamp_ms": 1748652100000,
+  "checksum": "ae0f84a71c987607257309bf36dfb41a",
+  "data": "<2048 bytes omitted>"
+}`
+        ),
+        exampleBlock(
+          'JustTrailers',
+          'unary',
+          'trailers only',
+          'Exercise trailer handling. The response body is empty, so the interesting data is in the trailing metadata.',
+          'just-trailers',
+          `grpcurl -plaintext -v -d '{}' ${host} ${state.serviceName}/JustTrailers\n\n# Via Apache/TLS on 443:\ngrpcurl -v -d '{}' your-hostname:443 ${state.serviceName}/JustTrailers`,
+          `Resolved method descriptor:
+rpc JustTrailers ( .joborchestrator.Empty ) returns ( .joborchestrator.Empty );
+
+Response headers received
+< grpc-status: 0
+< x-trace-id: 6ef12-98a01-3bca2
+< feature-flags: beta-mode
+< grpc-retry-pushback-ms: 350
+
+{}
+`
         )
       ];
 
