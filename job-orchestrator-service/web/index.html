@@ -522,8 +522,8 @@ ERROR: Test case 2 failed</textarea>
         </section>
 
         <section class="panel">
-          <h2>gRPC Call Examples</h2>
-          <p class="sub">Copyable `grpcurl` examples for the main `joborchestrator.JobOrchestrator` RPCs, similar to the chat-service reference page.</p>
+          <h2>gRPC RPC Reference And Examples</h2>
+          <p class="sub">Copyable `grpcurl` examples for the main `joborchestrator.JobOrchestrator` RPCs, presented as a browser-facing RPC reference similar to the other service docs in this repository.</p>
           <div class="examples" id="grpc-examples">Loading examples...</div>
         </section>
       </div>
@@ -792,9 +792,9 @@ ERROR: Test case 2 failed</textarea>
           'InteractiveSession',
           'bidi',
           'bidirectional',
-          'Send control commands like GET_STATUS and PAUSE over a bidi stream and receive ACK or STATUS events back.',
+          'Send control commands like GET_STATUS and PAUSE over a bidi stream and receive ACK or STATUS events back. Keep stdin open if you want grpcurl to continue accepting new requests.',
           'interactive-session',
-          `cat <<'EOF' | grpcurl -plaintext -d @ ${host} ${state.serviceName}/InteractiveSession\n{"job_id":"${jobId}","command":"GET_STATUS"}\n{"job_id":"${jobId}","command":"PAUSE"}\n{"job_id":"${jobId}","command":"SET_LOG_LEVEL","arg":"DEBUG"}\nEOF`,
+          `# Interactive mode: grpcurl keeps the stream open while stdin stays open\ngrpcurl -plaintext -d @ ${host} ${state.serviceName}/InteractiveSession\n\n# Then type one JSON message per line:\n{"job_id":"${jobId}","command":"GET_STATUS"}\n{"job_id":"${jobId}","command":"PAUSE"}\n{"job_id":"${jobId}","command":"SET_LOG_LEVEL","arg":"DEBUG"}\n\n# Press Ctrl+D only when you want to close the stream.\n# If you pipe a heredoc or file into grpcurl, stdin closes and the server ends the session after those messages.`,
           `{
   "job_id": "",
   "event_type": "ACK",
@@ -820,7 +820,7 @@ ERROR: Test case 2 failed</textarea>
           'SizedInteractiveSession',
           'bidi',
           'bidirectional',
-          'Exchange binary packets over a bidirectional stream for stress and transport testing, with the server echoing processed packet metadata.',
+          'Exchange binary packets over a bidirectional stream for stress and transport testing, with the server echoing processed packet metadata. Like InteractiveSession, grpcurl only waits for more packets while stdin remains open.',
           'sized-interactive-session',
           `cat <<'EOF' | grpcurl -plaintext -d @ ${host} ${state.serviceName}/SizedInteractiveSession\n{"packet_id":"pkt-001","log_file":"smoke.log","data":"QUJDREVGR0g=","data_size":"8","timestamp_ms":1748652000000,"metadata":{"source":"grpcurl","encoding":"base64"}}\n{"packet_id":"pkt-002","log_file":"debug.log","data":"MTIzNDU2Nzg5MA==","data_size":"10","timestamp_ms":1748652001000,"metadata":{"source":"grpcurl","encoding":"base64"}}\nEOF`,
           `{

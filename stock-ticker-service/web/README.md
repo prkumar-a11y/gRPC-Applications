@@ -15,6 +15,8 @@ Current pieces:
 The bridge calls the gRPC service and exposes browser-friendly endpoints:
 
 - `GET /` serves the dashboard
+- `GET /healthz` reports bridge health and current gRPC target
+- `GET /api/overview` returns service metadata and documented RPC methods
 - `GET /api/symbols` returns available symbols
 - `GET /api/price/<symbol>` returns a JSON snapshot
 - `GET /api/stream?symbol=AAPL` streams updates over Server-Sent Events
@@ -73,6 +75,23 @@ STOCK_TICKER_WEB_HOST=0.0.0.0 STOCK_TICKER_WEB_PORT=8080 python3 web/app.py
 - Opens a live SSE stream through the web bridge
 - Renders current price, delta, volume, market state, and a sparkline
 - Lets you switch symbols or supply a custom symbol such as `AAPL:5`
+- Documents each gRPC RPC with copyable `grpcurl` and browser-bridge examples
+
+## RPC Documentation Surface
+
+The browser page now includes a built-in RPC reference similar to the other service docs in this repository.
+
+Documented gRPC RPCs:
+
+- `GetAvailableSymbols`
+- `GetCurrentPrice`
+- `SubscribeToTicker`
+
+The page also shows:
+
+- direct backend `grpcurl` examples against `127.0.0.1:50053`
+- Apache/TLS `grpcurl` examples against `your-hostname:443`
+- bridge equivalents for `/api/symbols`, `/api/price/<symbol>`, and `/api/stream`
 
 - Local backend: `127.0.0.1:50053`
 - Optional Apache TLS proxy: `https://<host>:443`

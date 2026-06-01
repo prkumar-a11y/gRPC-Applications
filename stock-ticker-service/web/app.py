@@ -61,6 +61,24 @@ def healthz() -> Response:
     return jsonify({'ok': True, 'grpc_target': grpc_target()})
 
 
+@app.get('/api/overview')
+def overview() -> Response:
+    return jsonify({
+        'service': 'stockticker.StockTickerService',
+        'grpc_target': grpc_target(),
+        'rpc_methods': [
+            'GetAvailableSymbols',
+            'GetCurrentPrice',
+            'SubscribeToTicker',
+        ],
+        'browser_endpoints': [
+            'GET /api/symbols',
+            'GET /api/price/<symbol>',
+            'GET /api/stream?symbol=<symbol>&client_id=<id>',
+        ],
+    })
+
+
 @app.get('/api/symbols')
 def get_symbols() -> Response:
     stub = get_stub()

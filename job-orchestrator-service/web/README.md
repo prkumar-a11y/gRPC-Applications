@@ -73,6 +73,42 @@ JOB_ORCHESTRATOR_WEB_HOST=0.0.0.0 JOB_ORCHESTRATOR_WEB_PORT=8082 python3 web/app
 - Pushes sample log lines through the client-streaming RPC
 - Shows ready-to-run `grpcurl` examples for the current backend target
 
+## RPC Documentation Surface
+
+The browser page includes an RPC reference with runnable examples for the main gRPC methods exposed by `joborchestrator.JobOrchestrator`.
+
+Documented RPCs:
+
+- `SubmitJob`
+- `GetJobStatus`
+- `WatchJob`
+- `PushLogs`
+- `InteractiveSession`
+- `SizedInteractiveSession`
+- `GetSizedResponse`
+- `UnarySizedResponse`
+- `JustTrailers`
+
+The page also shows:
+
+- direct backend `grpcurl` examples against `127.0.0.1:50055`
+- Apache/TLS `grpcurl` examples against `your-hostname:443`
+- browser bridge equivalents for the supported REST and SSE flows
+
+## Interactive grpcurl Note
+
+For `InteractiveSession` and `SizedInteractiveSession`, `grpcurl` only waits for new requests while its stdin is still open.
+
+Use interactive stdin like this if you want to keep sending more messages:
+
+```bash
+grpcurl -plaintext -d @ localhost:50055 joborchestrator.JobOrchestrator/InteractiveSession
+```
+
+Then type one JSON message per line and press Enter after each one. Press `Ctrl+D` only when you want to close the stream.
+
+If you pipe a heredoc or file into `grpcurl`, stdin closes as soon as that input finishes, so the server ends the bidi session after processing those messages. 
+
 When proxied through Apache on `/job-orchestrator/`, the browser-facing URLs become:
 
 - `GET /job-orchestrator/`

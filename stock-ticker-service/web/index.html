@@ -352,6 +352,148 @@
     padding: 16px;
   }
 
+  .docs-card {
+    background: rgba(255,255,255,0.42);
+    border-radius: 28px;
+    border: 1px solid rgba(21,35,27,0.08);
+    padding: 18px;
+  }
+
+  .docs-head {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .docs-summary {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .docs-summary article,
+  .example-card {
+    background: rgba(255,255,255,0.76);
+    border-radius: 22px;
+    border: 1px solid rgba(21,35,27,0.08);
+    padding: 18px;
+  }
+
+  .docs-list {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .docs-list li {
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(21,35,27,0.04);
+    font-family: Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+  }
+
+  .examples {
+    display: grid;
+    gap: 14px;
+  }
+
+  .example-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 14px;
+  }
+
+  .example-head h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .badge.unary {
+    background: rgba(0,108,79,0.12);
+    color: var(--accent);
+  }
+
+  .badge.server {
+    background: rgba(181,93,36,0.12);
+    color: var(--accent-2);
+  }
+
+  .badge.discovery {
+    background: rgba(21,35,27,0.08);
+    color: var(--ink);
+  }
+
+  .example-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .example-tab {
+    border: 1px solid rgba(21,35,27,0.08);
+    border-radius: 999px;
+    background: rgba(21,35,27,0.05);
+    color: var(--ink);
+    padding: 8px 12px;
+    box-shadow: none;
+  }
+
+  .example-tab.active {
+    background: linear-gradient(135deg, var(--accent), #118863);
+    color: white;
+  }
+
+  .example-panel { display: none; }
+  .example-panel.active { display: block; }
+
+  .copy-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .copy-btn {
+    border: 1px solid rgba(21,35,27,0.08);
+    border-radius: 999px;
+    background: rgba(21,35,27,0.06);
+    color: var(--ink);
+    padding: 8px 12px;
+    box-shadow: none;
+  }
+
+  .code-block,
+  .response-block {
+    margin: 0;
+    border-radius: 18px;
+    padding: 14px;
+    overflow: auto;
+    background: rgba(21,35,27,0.94);
+    color: #f4f8f5;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+
   .log-card header {
     padding: 6px 6px 14px;
     border: 0;
@@ -400,6 +542,8 @@
     aside { border-right: 0; border-bottom: 1px solid var(--line); }
     .hero { grid-template-columns: 1fr; }
     .detail-card { grid-template-columns: 1fr; }
+    .docs-head,
+    .docs-summary { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 720px) {
@@ -536,6 +680,41 @@
             <div class="empty">Connect to a symbol to start streaming updates.</div>
           </div>
         </section>
+
+        <section class="docs-card">
+          <div class="docs-head">
+            <div>
+              <span class="kicker">RPC Documentation</span>
+              <h2 style="margin:6px 0 8px;font-size:1.55rem">gRPC RPC reference and runnable examples</h2>
+              <p style="margin:0;color:var(--muted);line-height:1.6;max-width:62ch;">
+                This page now doubles as a service guide: it lists the exposed stock ticker RPCs, shows copyable <code>grpcurl</code> commands for direct and Apache-backed access, and pairs them with the browser bridge equivalents where they exist.
+              </p>
+            </div>
+            <article>
+              <span class="kicker">Browser Bridge Endpoints</span>
+              <ul id="browser-endpoints" class="docs-list">
+                <li>Loading...</li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="docs-summary">
+            <article>
+              <span class="kicker">Service Name</span>
+              <div id="service-name" class="metric" style="font-size:1.1rem">stockticker.StockTickerService</div>
+            </article>
+            <article>
+              <span class="kicker">gRPC Target</span>
+              <div id="grpc-target" class="metric" style="font-size:1.1rem">127.0.0.1:50053</div>
+            </article>
+            <article>
+              <span class="kicker">Documented RPCs</span>
+              <div id="rpc-count" class="metric">3</div>
+            </article>
+          </div>
+
+          <div class="examples" id="grpc-examples">Loading RPC examples...</div>
+        </section>
       </main>
     </div>
   </div>
@@ -559,6 +738,10 @@
     selectedMeta: null,
     updates: [],
     eventSource: null,
+    grpcTarget: '127.0.0.1:50053',
+    serviceName: 'stockticker.StockTickerService',
+    rpcMethods: [],
+    browserEndpoints: [],
   };
 
   const elements = {
@@ -585,12 +768,38 @@
     refreshButton: document.getElementById('refresh-button'),
     sparkLine: document.getElementById('spark-line'),
     sparkFill: document.getElementById('spark-fill'),
+    serviceName: document.getElementById('service-name'),
+    grpcTarget: document.getElementById('grpc-target'),
+    rpcCount: document.getElementById('rpc-count'),
+    browserEndpoints: document.getElementById('browser-endpoints'),
+    grpcExamples: document.getElementById('grpc-examples'),
   };
 
   async function boot() {
+    await loadOverview();
     await checkBridge();
     await loadSymbols();
     wireActions();
+  }
+
+  async function loadOverview() {
+    try {
+      const response = await fetch(`${API_BASE}/overview`);
+      const data = await response.json();
+      state.grpcTarget = data.grpc_target || state.grpcTarget;
+      state.serviceName = data.service || state.serviceName;
+      state.rpcMethods = data.rpc_methods || [];
+      state.browserEndpoints = data.browser_endpoints || [];
+      elements.serviceName.textContent = state.serviceName;
+      elements.grpcTarget.textContent = state.grpcTarget;
+      elements.rpcCount.textContent = String(state.rpcMethods.length || 3);
+      elements.browserEndpoints.innerHTML = state.browserEndpoints.map((endpoint) => `<li>${escapeHtml(endpoint)}</li>`).join('');
+      renderGrpcExamples();
+    } catch (error) {
+      elements.browserEndpoints.innerHTML = '<li>Overview unavailable</li>';
+      setError(`Overview failed: ${error.message}`);
+      renderGrpcExamples();
+    }
   }
 
   function wireActions() {
@@ -613,7 +822,10 @@
     try {
       const response = await fetch(HEALTH_URL);
       const data = await response.json();
+      state.grpcTarget = data.grpc_target || state.grpcTarget;
+      elements.grpcTarget.textContent = state.grpcTarget;
       elements.bridgeStatus.textContent = data.grpc_target || 'Ready';
+      renderGrpcExamples();
     } catch (error) {
       elements.bridgeStatus.textContent = 'Unavailable';
       setError(`Bridge check failed: ${error.message}`);
@@ -836,6 +1048,166 @@
 
   function formatTimestamp(timestamp) {
     return new Date(Number(timestamp) * 1000).toLocaleTimeString();
+  }
+
+  function exampleBlock(title, badgeClass, badgeText, description, key, grpcurl, response, restExample = '', restLabel = 'REST') {
+    const restTab = restExample ? `<button class="example-tab" data-target="${key}-rest">${restLabel}</button>` : '';
+    const restPanel = restExample ? `
+      <div class="example-panel" id="${key}-rest">
+        <div class="copy-row"><button class="copy-btn" data-copy="${key}-rest-code">Copy</button></div>
+        <pre class="code-block" id="${key}-rest-code">${escapeHtml(restExample)}</pre>
+      </div>` : '';
+
+    return `
+      <article class="example-card" data-example="${key}">
+        <div class="example-head">
+          <div>
+            <h3>${title}</h3>
+            <div style="margin-top:6px;color:var(--muted);line-height:1.55;">${description}</div>
+          </div>
+          <span class="badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="example-tabs">
+          <button class="example-tab active" data-target="${key}-grpcurl">grpcurl</button>
+          ${restTab}
+          <button class="example-tab" data-target="${key}-response">response</button>
+        </div>
+        <div class="example-panel active" id="${key}-grpcurl">
+          <div class="copy-row"><button class="copy-btn" data-copy="${key}-grpcurl-code">Copy</button></div>
+          <pre class="code-block" id="${key}-grpcurl-code">${escapeHtml(grpcurl)}</pre>
+        </div>
+        ${restPanel}
+        <div class="example-panel" id="${key}-response">
+          <div class="response-block">${escapeHtml(response)}</div>
+        </div>
+      </article>
+    `;
+  }
+
+  function renderGrpcExamples() {
+    const host = state.grpcTarget;
+    const symbol = state.selectedSymbol || 'AAPL';
+    const clientId = (elements.clientId.value || 'web-dashboard').trim() || 'web-dashboard';
+    const apacheBase = BASE_PATH || '/stock-ticker';
+    const examples = [
+      exampleBlock(
+        'List Services',
+        'discovery',
+        'discovery',
+        'Use reflection to verify that the stock ticker service is exposed either directly on the backend port or through Apache on 443.',
+        'list-services',
+        `grpcurl -plaintext ${host} list\n\n# Via Apache/TLS on 443:\ngrpcurl your-hostname:443 list`,
+        `grpc.health.v1.Health\ngrpc.reflection.v1alpha.ServerReflection\nstockticker.StockTickerService`
+      ),
+      exampleBlock(
+        'GetAvailableSymbols',
+        'unary',
+        'unary',
+        'Return all symbols that the service can stream, including company names, sectors, and seeded base prices.',
+        'get-symbols',
+        `grpcurl -plaintext -d '{}' ${host} ${state.serviceName}/GetAvailableSymbols\n\n# Via Apache/TLS on 443:\ngrpcurl -d '{}' your-hostname:443 ${state.serviceName}/GetAvailableSymbols`,
+        `{
+  "symbols": [
+    {
+      "symbol": "AAPL",
+      "company_name": "Apple Inc.",
+      "sector": "Technology",
+      "base_price": 185.45
+    },
+    {
+      "symbol": "MSFT",
+      "company_name": "Microsoft Corporation",
+      "sector": "Technology",
+      "base_price": 420.15
+    }
+  ]
+}`,
+        `curl http://127.0.0.1:8080${API_BASE.replace(BASE_PATH, '')}/symbols\n\n# Via Apache/TLS path:\ncurl https://your-hostname${apacheBase}${API_BASE.slice(BASE_PATH.length)}/symbols`
+      ),
+      exampleBlock(
+        'GetCurrentPrice',
+        'unary',
+        'unary',
+        'Fetch a single current price snapshot for one symbol. Use this before opening a live stream if you need the latest state immediately.',
+        'get-price',
+        `grpcurl -plaintext -d '{"symbol":"${symbol}"}' ${host} ${state.serviceName}/GetCurrentPrice\n\n# Via Apache/TLS on 443:\ngrpcurl -d '{"symbol":"${symbol}"}' your-hostname:443 ${state.serviceName}/GetCurrentPrice`,
+        `{
+  "current_price": {
+    "symbol": "${symbol}",
+    "price": 186.12,
+    "change": 0.67,
+    "change_percent": 0.36,
+    "timestamp": 1748652000,
+    "volume": 1482300,
+    "market_status": "OPEN"
+  },
+  "success": true,
+  "error_message": ""
+}`,
+        `curl http://127.0.0.1:8080${API_BASE.replace(BASE_PATH, '')}/price/${symbol}\n\n# Via Apache/TLS path:\ncurl https://your-hostname${apacheBase}${API_BASE.slice(BASE_PATH.length)}/price/${symbol}`
+      ),
+      exampleBlock(
+        'SubscribeToTicker',
+        'server',
+        'server streaming',
+        'Open a live server stream for one symbol. The special SYMBOL:COUNT form such as AAPL:5 returns a fixed number of updates and then ends the stream.',
+        'subscribe',
+        `grpcurl -plaintext -d '{"symbol":"${symbol}:5","client_id":"${clientId}"}' ${host} ${state.serviceName}/SubscribeToTicker\n\n# Unlimited stream:\ngrpcurl -plaintext -d '{"symbol":"${symbol}","client_id":"${clientId}"}' ${host} ${state.serviceName}/SubscribeToTicker\n\n# Via Apache/TLS on 443:\ngrpcurl -d '{"symbol":"${symbol}:5","client_id":"${clientId}"}' your-hostname:443 ${state.serviceName}/SubscribeToTicker`,
+        `{
+  "symbol": "${symbol}",
+  "price": 186.12,
+  "change": 0.67,
+  "change_percent": 0.36,
+  "timestamp": 1748652000,
+  "volume": 1482300,
+  "market_status": "OPEN"
+}
+{
+  "symbol": "${symbol}",
+  "price": 186.41,
+  "change": 0.96,
+  "change_percent": 0.52,
+  "timestamp": 1748652002,
+  "volume": 1486400,
+  "market_status": "OPEN"
+}`,
+        `curl -N 'http://127.0.0.1:8080${API_BASE.replace(BASE_PATH, '')}/stream?symbol=${symbol}&client_id=${clientId}'\n\n# Via Apache/TLS path:\ncurl -N 'https://your-hostname${apacheBase}${API_BASE.slice(BASE_PATH.length)}/stream?symbol=${symbol}&client_id=${clientId}'`,
+        'REST (SSE)'
+      )
+    ];
+
+    elements.grpcExamples.innerHTML = examples.join('');
+    bindExampleInteractions();
+  }
+
+  function bindExampleInteractions() {
+    document.querySelectorAll('.example-tab').forEach((tab) => {
+      tab.onclick = () => {
+        const card = tab.closest('.example-card');
+        card.querySelectorAll('.example-tab').forEach((item) => item.classList.remove('active'));
+        card.querySelectorAll('.example-panel').forEach((panel) => panel.classList.remove('active'));
+        tab.classList.add('active');
+        const target = card.querySelector(`#${tab.dataset.target}`);
+        if (target) target.classList.add('active');
+      };
+    });
+
+    document.querySelectorAll('.copy-btn').forEach((button) => {
+      button.onclick = async () => {
+        const source = document.getElementById(button.dataset.copy);
+        if (!source) return;
+        try {
+          await navigator.clipboard.writeText(source.textContent);
+          const label = button.textContent;
+          button.textContent = 'Copied';
+          window.setTimeout(() => {
+            button.textContent = label;
+          }, 1200);
+        } catch (error) {
+          setError(`Copy failed: ${error.message}`);
+        }
+      };
+    });
   }
 
   function escapeHtml(value) {
