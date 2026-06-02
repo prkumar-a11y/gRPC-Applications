@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 
 	pb "github.com/grpc-applications/chat-service/pkg"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 // subscriber holds a channel for streaming messages to a connected client
@@ -48,6 +50,24 @@ func NewChatServer() *ChatServer {
 	return &ChatServer{rooms: make(map[string]*chatRoom)}
 }
 
+func trailerMetadata(rpcName string, extraPairs ...string) metadata.MD {
+	pairs := []string{
+		"x-service-name", "chat-service",
+		"x-rpc-name", rpcName,
+		"x-response-timestamp-ms", strconv.FormatInt(time.Now().UnixMilli(), 10),
+	}
+	pairs = append(pairs, extraPairs...)
+	return metadata.Pairs(pairs...)
+}
+
+func setUnaryTrailers(ctx context.Context, rpcName string, extraPairs ...string) {
+	_ = grpc.SetTrailer(ctx, trailerMetadata(rpcName, extraPairs...))
+}
+
+func setStreamTrailers(stream grpc.ServerStream, rpcName string, extraPairs ...string) {
+	stream.SetTrailer(trailerMetadata(rpcName, extraPairs...))
+}
+
 func (s *ChatServer) getOrCreate(roomID string) *chatRoom {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -64,6 +84,13 @@ func (s *ChatServer) getOrCreate(roomID string) *chatRoom {
 
 // JoinRoom — server-streaming: client joins and receives a live message stream
 func (s *ChatServer) JoinRoom(req *pb.JoinRoomRequest, stream pb.ChatService_JoinRoomServer) error {
+	setStreamTrailers(
+		stream,
+		"JoinRoom",
+		"x-room-id", req.RoomId,
+		"x-username", req.Username,
+	)
+
 	r := s.getOrCreate(req.RoomId)
 
 	sub := &subscriber{username: req.Username, ch: make(chan *pb.Message, 100)}
@@ -123,7 +150,14 @@ func (s *ChatServer) JoinRoom(req *pb.JoinRoomRequest, stream pb.ChatService_Joi
 }
 
 // SendMessage — unary: broadcast a message to all room subscribers
-func (s *ChatServer) SendMessage(_ context.Context, req *pb.SendMessageRequest) (*pb.SendMessageResponse, error) {
+func (s *ChatServer) SendMessage(ctx context.Context, req *pb.SendMessageRequest) (*pb.SendMessageResponse, error) {
+	setUnaryTrailers(
+		ctx,
+		"SendMessage",
+		"x-room-id", req.RoomId,
+		"x-username", req.Username,
+	)
+
 	r := s.getOrCreate(req.RoomId)
 	msgID := fmt.Sprintf("msg_%d", time.Now().UnixNano())
 	r.broadcast(&pb.Message{
@@ -138,7 +172,14 @@ func (s *ChatServer) SendMessage(_ context.Context, req *pb.SendMessageRequest) 
 }
 
 // LeaveRoom — unary: remove a user from a room
-func (s *ChatServer) LeaveRoom(_ context.Context, req *pb.LeaveRoomRequest) (*pb.LeaveRoomResponse, error) {
+func (s *ChatServer) LeaveRoom(ctx context.Context, req *pb.LeaveRoomRequest) (*pb.LeaveRoomResponse, error) {
+	setUnaryTrailers(
+		ctx,
+		"LeaveRoom",
+		"x-room-id", req.RoomId,
+		"x-username", req.Username,
+	)
+
 	s.mu.Lock()
 	r, ok := s.rooms[req.RoomId]
 	s.mu.Unlock()
@@ -161,9 +202,10 @@ func (s *ChatServer) LeaveRoom(_ context.Context, req *pb.LeaveRoomRequest) (*pb
 }
 
 // GetRooms — unary: return all active rooms
-func (s *ChatServer) GetRooms(_ context.Context, _ *pb.GetRoomsRequest) (*pb.GetRoomsResponse, error) {
+func (s *ChatServer) GetRooms(ctx context.Context, _ *pb.GetRoomsRequest) (*pb.GetRoomsResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	setUnaryTrailers(ctx, "GetRooms", "x-room-count", strconv.Itoa(len(s.rooms)))
 	rooms := make([]*pb.Room, 0, len(s.rooms))
 	for _, r := range s.rooms {
 		r.mu.Lock()
@@ -174,15 +216,17 @@ func (s *ChatServer) GetRooms(_ context.Context, _ *pb.GetRoomsRequest) (*pb.Get
 }
 
 // GetRoomUsers — unary: return users in a room
-func (s *ChatServer) GetRoomUsers(_ context.Context, req *pb.GetRoomUsersRequest) (*pb.GetRoomUsersResponse, error) {
+func (s *ChatServer) GetRoomUsers(ctx context.Context, req *pb.GetRoomUsersRequest) (*pb.GetRoomUsersResponse, error) {
 	s.mu.Lock()
 	r, ok := s.rooms[req.RoomId]
 	s.mu.Unlock()
 	if !ok {
+		setUnaryTrailers(ctx, "GetRoomUsers", "x-room-id", req.RoomId, "x-user-count", "0")
 		return &pb.GetRoomUsersResponse{Users: []*pb.User{}}, nil
 	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	setUnaryTrailers(ctx, "GetRoomUsers", "x-room-id", req.RoomId, "x-user-count", strconv.Itoa(len(r.users)))
 	users := make([]*pb.User, 0, len(r.users))
 	for username, joinedAt := range r.users {
 		users = append(users, &pb.User{Username: username, JoinedAt: joinedAt})

@@ -25,6 +25,18 @@ from proto import stock_ticker_pb2_grpc as stock_ticker_pb2_grpc
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - [%(threadName)s %(thread)d] - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
+def set_rpc_trailers(context, rpc_name, extra_pairs=None):
+    trailers = [
+        ('x-service-name', 'stock-ticker-service'),
+        ('x-rpc-name', rpc_name),
+        ('x-response-timestamp-ms', str(int(time.time() * 1000))),
+        ('x-server-thread', threading.current_thread().name),
+    ]
+    if extra_pairs:
+        trailers.extend(extra_pairs)
+    context.set_trailing_metadata(trailers)
+
 class StockTickerService(stock_ticker_pb2_grpc.StockTickerServiceServicer):
     def __init__(self):
         # Sample stock data with starting prices
@@ -191,6 +203,15 @@ class StockTickerService(stock_ticker_pb2_grpc.StockTickerServiceServicer):
 
     def SubscribeToTicker(self, request, context):
         """Subscribe to stock price updates for a given symbol"""
+        set_rpc_trailers(
+            context,
+            'SubscribeToTicker',
+            [
+                ('x-symbol-requested', request.symbol.strip() if request.symbol else ''),
+                ('x-client-id', request.client_id.strip() if request.client_id else ''),
+            ],
+        )
+
         # Validate input data
         if not request.symbol or request.symbol.strip() == "":
             logger.warning(f"Client sent empty symbol")
@@ -313,6 +334,11 @@ class StockTickerService(stock_ticker_pb2_grpc.StockTickerServiceServicer):
     def GetAvailableSymbols(self, request, context):
         """Get list of available stock symbols"""
         logger.info("GetAvailableSymbols request received")
+        set_rpc_trailers(
+            context,
+            'GetAvailableSymbols',
+            [('x-symbol-count', str(len(self.stock_data)))],
+        )
         
         symbols = []
         for symbol, info in self.stock_data.items():
@@ -331,6 +357,12 @@ class StockTickerService(stock_ticker_pb2_grpc.StockTickerServiceServicer):
 
     def GetCurrentPrice(self, request, context):
         """Get current price for a specific symbol"""
+        set_rpc_trailers(
+            context,
+            'GetCurrentPrice',
+            [('x-symbol-requested', request.symbol.strip().upper() if request.symbol else '')],
+        )
+
         # Validate input data
         if not request.symbol or request.symbol.strip() == "":
             logger.warning(f"GetCurrentPrice called with empty symbol")
