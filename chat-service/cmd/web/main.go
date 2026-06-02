@@ -126,7 +126,8 @@ const indexHTML = `<!DOCTYPE html>
 </div>
 
 <script>
-  const API = '';
+  const BASE_PATH = window.location.pathname.startsWith('/chat-service') ? '/chat-service' : '';
+  const API = BASE_PATH + '/api';
   let username = '';
   let currentRoom = '';
   let eventSource = null;
@@ -496,8 +497,8 @@ const docsHTML = `<!DOCTYPE html>
 <header>
   <h1>gRPC Chat Service</h1>
   <nav>
-    <a href="/chat">Live Chat UI</a>
-    <a href="/docs">API Docs</a>
+    <a href="/chat-service/">Live Chat UI</a>
+    <a href="/chat-service/docs">API Docs</a>
   </nav>
 </header>
 <div class="hero">
@@ -553,8 +554,8 @@ const docsHTML = `<!DOCTYPE html>
       <div class="tab-panel active" id="gr1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext localhost:50051 chat.ChatService/GetRooms
 
 # With TLS (self-signed):
-grpcurl -insecure origin-devqa-ipqa.cloudlets.qa.akamai.com:443 chat.ChatService/GetRooms</pre></div>
-      <div class="tab-panel" id="rest1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl https://origin-devqa-ipqa.cloudlets.qa.akamai.com/api/rooms</pre></div>
+grpcurl -insecure grpc-service-apache-origin.qa.akamai.com:443 chat.ChatService/GetRooms</pre></div>
+  <div class="tab-panel" id="rest1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl https://grpc-service-apache-origin.qa.akamai.com/chat-service/api/rooms</pre></div>
       <div class="tab-panel" id="resp1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
   "rooms": [
     {
@@ -626,12 +627,12 @@ grpcurl -insecure origin-devqa-ipqa.cloudlets.qa.akamai.com:443 chat.ChatService
 
 # With TLS:
 grpcurl -insecure -d '{"room_id":"lobby","username":"alice"}' \
-  origin-devqa-ipqa.cloudlets.qa.akamai.com:443 chat.ChatService/JoinRoom</pre></div>
+  grpc-service-apache-origin.qa.akamai.com:443 chat.ChatService/JoinRoom</pre></div>
       <div class="tab-panel" id="rest2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button># SSE stream — stays open until the client disconnects
-curl -N "https://origin-devqa-ipqa.cloudlets.qa.akamai.com/api/rooms/join?room_id=lobby&amp;username=alice"
+curl -N "https://grpc-service-apache-origin.qa.akamai.com/chat-service/api/rooms/join?room_id=lobby&amp;username=alice"
 
 # JavaScript EventSource:
-const es = new EventSource('/api/rooms/join?room_id=lobby&amp;username=alice');
+const es = new EventSource('/chat-service/api/rooms/join?room_id=lobby&amp;username=alice');
 es.onmessage = e =&gt; console.log(JSON.parse(e.data));</pre></div>
       <div class="tab-panel" id="resp2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button># Each streamed message:
 {
@@ -697,8 +698,8 @@ es.onmessage = e =&gt; console.log(JSON.parse(e.data));</pre></div>
 # With TLS:
 grpcurl -insecure \
   -d '{"room_id":"lobby","username":"alice","content":"Hello!"}' \
-  origin-devqa-ipqa.cloudlets.qa.akamai.com:443 chat.ChatService/SendMessage</pre></div>
-      <div class="tab-panel" id="rest3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl -X POST https://origin-devqa-ipqa.cloudlets.qa.akamai.com/api/messages \
+    grpc-service-apache-origin.qa.akamai.com:443 chat.ChatService/SendMessage</pre></div>
+      <div class="tab-panel" id="rest3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl -X POST https://grpc-service-apache-origin.qa.akamai.com/chat-service/api/messages \
   -H "Content-Type: application/json" \
   -d '{"room_id":"lobby","username":"alice","content":"Hello!"}'</pre></div>
       <div class="tab-panel" id="resp3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
@@ -749,8 +750,8 @@ grpcurl -insecure \
 # With TLS:
 grpcurl -insecure \
   -d '{"room_id":"lobby","username":"alice"}' \
-  origin-devqa-ipqa.cloudlets.qa.akamai.com:443 chat.ChatService/LeaveRoom</pre></div>
-      <div class="tab-panel" id="rest4"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl -X POST https://origin-devqa-ipqa.cloudlets.qa.akamai.com/api/rooms/leave \
+    grpc-service-apache-origin.qa.akamai.com:443 chat.ChatService/LeaveRoom</pre></div>
+      <div class="tab-panel" id="rest4"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl -X POST https://grpc-service-apache-origin.qa.akamai.com/chat-service/api/rooms/leave \
   -H "Content-Type: application/json" \
   -d '{"room_id":"lobby","username":"alice"}'</pre></div>
       <div class="tab-panel" id="resp4"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
@@ -801,8 +802,8 @@ grpcurl -insecure \
 # With TLS:
 grpcurl -insecure \
   -d '{"room_id":"lobby"}' \
-  origin-devqa-ipqa.cloudlets.qa.akamai.com:443 chat.ChatService/GetRoomUsers</pre></div>
-      <div class="tab-panel" id="rest5"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl https://origin-devqa-ipqa.cloudlets.qa.akamai.com/api/rooms/lobby/users</pre></div>
+    grpc-service-apache-origin.qa.akamai.com:443 chat.ChatService/GetRoomUsers</pre></div>
+      <div class="tab-panel" id="rest5"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>curl https://grpc-service-apache-origin.qa.akamai.com/chat-service/api/rooms/lobby/users</pre></div>
       <div class="tab-panel" id="resp5"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
   "users": [
     {
@@ -843,22 +844,37 @@ grpcurl -insecure \
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/rooms", cors(getRooms))
+	mux.HandleFunc("GET /chat-service/api/rooms", cors(getRooms))
 	mux.HandleFunc("GET /api/rooms/join", cors(joinRoom))
+	mux.HandleFunc("GET /chat-service/api/rooms/join", cors(joinRoom))
 	mux.HandleFunc("GET /api/rooms/{id}/users", cors(getRoomUsers))
+	mux.HandleFunc("GET /chat-service/api/rooms/{id}/users", cors(getRoomUsers))
 	mux.HandleFunc("POST /api/messages", cors(sendMessage))
+	mux.HandleFunc("POST /chat-service/api/messages", cors(sendMessage))
 	mux.HandleFunc("POST /api/rooms/leave", cors(leaveRoom))
+	mux.HandleFunc("POST /chat-service/api/rooms/leave", cors(leaveRoom))
+	healthHandler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"status":"ok"}`)
+	}
 	docsHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, docsHTML)
 	}
 	mux.HandleFunc("GET /docs", docsHandler)
 	mux.HandleFunc("GET /docs/", docsHandler)
+	mux.HandleFunc("GET /chat-service/docs", docsHandler)
+	mux.HandleFunc("GET /chat-service/docs/", docsHandler)
 	chatHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, indexHTML)
 	}
 	mux.HandleFunc("GET /chat", chatHandler)
 	mux.HandleFunc("GET /chat/", chatHandler)
+	mux.HandleFunc("GET /chat-service", chatHandler)
+	mux.HandleFunc("GET /chat-service/", chatHandler)
+	mux.HandleFunc("GET /healthz", healthHandler)
+	mux.HandleFunc("GET /chat-service/healthz", healthHandler)
 	mux.HandleFunc("GET /", chatHandler)
 
 	log.Println("Web bridge listening on :8080")
