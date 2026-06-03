@@ -18,6 +18,7 @@ require_command() {
 }
 
 require_command go
+require_command git
 require_command openssl
 require_command install
 require_command systemctl
@@ -37,11 +38,13 @@ fi
 
 mkdir -p "$INSTALL_ROOT/bin" "$INSTALL_ROOT/cert"
 
-tmp_gobin="$(mktemp -d)"
-trap 'rm -rf "$tmp_gobin"' EXIT
+tmp_build="$(mktemp -d)"
+trap 'rm -rf "$tmp_build"' EXIT
 
-GOBIN="$tmp_gobin" go install github.com/moul/grpcbin@"$VERSION"
-install -m 0755 "$tmp_gobin/grpcbin" "$INSTALL_ROOT/bin/grpcbin"
+# go install fails on modules with replace directives; clone and build instead
+git clone --depth 1 --branch "$VERSION" https://github.com/moul/grpcbin.git "$tmp_build/src"
+( cd "$tmp_build/src" && go build -o "$tmp_build/grpcbin" . )
+install -m 0755 "$tmp_build/grpcbin" "$INSTALL_ROOT/bin/grpcbin"
 
 if [[ ! -f "$INSTALL_ROOT/cert/server.crt" || ! -f "$INSTALL_ROOT/cert/server.key" ]]; then
   openssl req \
