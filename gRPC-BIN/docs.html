@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gRPCBin - API Reference</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0d1117;color:#c9d1d9;line-height:1.6}
+  a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
+  header{background:#161b22;border-bottom:1px solid #30363d;padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+  header h1{font-size:1.25rem;color:#f0f6fc}
+  header nav a{margin-left:20px;font-size:0.9rem;color:#8b949e}
+  .hero{background:#161b22;border-bottom:1px solid #30363d;padding:40px 32px}
+  .hero h2{font-size:1.8rem;color:#f0f6fc;margin-bottom:8px}
+  .hero p{color:#8b949e;max-width:700px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:600;margin-right:6px}
+  .badge.server-stream{background:#1f6feb;color:#fff}
+  .badge.client-stream{background:#8250df;color:#fff}
+  .badge.bidi{background:#cf222e;color:#fff}
+  .badge.unary{background:#238636;color:#fff}
+  .container{max-width:1060px;margin:0 auto;padding:32px}
+  .service-section{margin-bottom:48px}
+  .service-heading{font-size:1rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;border-bottom:1px solid #30363d;padding-bottom:8px;margin-bottom:24px}
+  .toc{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px 24px;margin-bottom:36px}
+  .toc h3{font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:12px}
+  .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 24px}
+  .toc-group{margin-bottom:10px}
+  .toc-group strong{font-size:0.78rem;color:#58a6ff;display:block;margin-bottom:4px}
+  .toc li{list-style:none;font-size:0.88rem;margin-bottom:2px}
+  .rpc{background:#161b22;border:1px solid #30363d;border-radius:8px;margin-bottom:28px;overflow:hidden}
+  .rpc-header{padding:16px 20px;border-bottom:1px solid #30363d;display:flex;align-items:flex-start;gap:10px}
+  .rpc-header h2{font-size:1.05rem;color:#f0f6fc}
+  .rpc-header p{color:#8b949e;font-size:0.875rem;margin-top:3px}
+  .rpc-body{padding:20px}
+  .section{margin-bottom:20px}
+  .section h3{font-size:0.8rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:10px}
+  .schema{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  table{width:100%;border-collapse:collapse;font-size:0.85rem}
+  th{text-align:left;padding:7px 12px;background:#0d1117;color:#8b949e;font-weight:500;border-bottom:1px solid #30363d}
+  td{padding:7px 12px;border-bottom:1px solid #21262d}
+  td code{background:#0d1117;padding:2px 6px;border-radius:4px;font-size:0.8rem;color:#e6edf3}
+  pre{background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:14px 16px;overflow-x:auto;font-size:0.82rem;color:#e6edf3;position:relative}
+  .copy-btn{position:absolute;top:8px;right:8px;background:#21262d;border:1px solid #30363d;color:#8b949e;padding:3px 10px;border-radius:4px;cursor:pointer;font-size:0.75rem}
+  .copy-btn:hover{background:#30363d;color:#e6edf3}
+  .tabs{display:flex;gap:2px;margin-bottom:8px}
+  .tab{padding:5px 14px;background:#0d1117;border:1px solid #30363d;border-radius:4px 4px 0 0;cursor:pointer;font-size:0.82rem;color:#8b949e;border-bottom:none}
+  .tab.active{background:#161b22;color:#f0f6fc;border-color:#30363d}
+  .tab-panel{display:none}.tab-panel.active{display:block}
+  .note{background:#161b22;border-left:3px solid #1f6feb;padding:10px 14px;border-radius:0 4px 4px 0;font-size:0.85rem;color:#8b949e;margin-top:10px}
+  footer{border-top:1px solid #30363d;padding:24px 32px;text-align:center;color:#8b949e;font-size:0.85rem}
+  .host{color:#58a6ff;font-family:monospace}
+</style>
+</head>
+<body>
+<header>
+  <h1>gRPCBin</h1>
+  <nav>
+    <a href="https://github.com/moul/grpcbin" target="_blank">GitHub</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h2>API Reference</h2>
+  <p>Full documentation for all gRPC services exposed by gRPCBin — an httpbin-like testing server for gRPC.
+  Direct gRPC: <span class="host">127.0.0.1:50054</span> (h2c) &nbsp;|&nbsp; Via Apache TLS: <span class="host">grpc-service-apache-origin.qa.akamai.com:443</span></p>
+</div>
+
+<div class="container">
+
+<div class="toc">
+  <h3>Services &amp; RPCs</h3>
+  <div class="toc-grid">
+    <div class="toc-group">
+      <strong>grpcbin.GRPCBin</strong>
+      <ul>
+        <li><a href="#Index">Index</a></li>
+        <li><a href="#Empty">Empty</a></li>
+        <li><a href="#DummyUnary">DummyUnary</a></li>
+        <li><a href="#DummyServerStream">DummyServerStream</a></li>
+        <li><a href="#DummyClientStream">DummyClientStream</a></li>
+        <li><a href="#DummyBidirectionalStreamStream">DummyBidirectionalStreamStream</a></li>
+        <li><a href="#SpecificError">SpecificError</a></li>
+        <li><a href="#RandomError">RandomError</a></li>
+        <li><a href="#HeadersUnary">HeadersUnary</a></li>
+        <li><a href="#NoResponseUnary">NoResponseUnary</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <strong>hello.HelloService</strong>
+      <ul>
+        <li><a href="#SayHello">SayHello</a></li>
+        <li><a href="#LotsOfReplies">LotsOfReplies</a></li>
+        <li><a href="#LotsOfGreetings">LotsOfGreetings</a></li>
+        <li><a href="#BidiHello">BidiHello</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <strong>addsvc.Add</strong>
+      <ul>
+        <li><a href="#Sum">Sum</a></li>
+        <li><a href="#Concat">Concat</a></li>
+      </ul>
+    </div>
+    <div class="toc-group">
+      <strong>grpc.gateway.examples.examplepb</strong>
+      <ul>
+        <li><a href="#ABE">ABitOfEverythingService</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- grpcbin.GRPCBin -->
+<!-- ============================================================ -->
+<div class="service-section">
+<div class="service-heading">grpcbin.GRPCBin</div>
+
+<!-- Index -->
+<div class="rpc" id="Index">
+  <div class="rpc-header">
+    <div>
+      <h2>Index <span class="badge unary">unary</span></h2>
+      <p>Returns a description of the server and a list of all available endpoint paths.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; EmptyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3" style="color:#8b949e;font-style:italic">empty</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; IndexReply</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>description</code></td><td>string</td><td>server description</td></tr>
+          <tr><td><code>endpoints</code></td><td>Endpoint[]</td><td></td></tr>
+          <tr><td>&nbsp;&nbsp;<code>path</code></td><td>string</td><td>RPC path</td></tr>
+          <tr><td>&nbsp;&nbsp;<code>description</code></td><td>string</td><td>short description</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'idx1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'idx2')">grpcurl (Apache 443)</div>
+        <div class="tab" onclick="showTab(this,'idx3')">Response</div>
+      </div>
+      <div class="tab-panel active" id="idx1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext 127.0.0.1:50054 grpcbin.GRPCBin/Index</pre></div>
+      <div class="tab-panel" id="idx2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/Index</pre></div>
+      <div class="tab-panel" id="idx3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button">{
+  "description": "gRPC testing server",
+  "endpoints": [
+    { "path": "index", "description": "This endpoint." },
+    { "path": "dummyUnary", "description": "Unary endpoint that replies a received DummyMessage." },
+    ...
+  ]
+}</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- Empty -->
+<div class="rpc" id="Empty">
+  <div class="rpc-header">
+    <div>
+      <h2>Empty <span class="badge unary">unary</span></h2>
+      <p>Takes no argument and replies with an empty message. Useful for liveness checking.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; EmptyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3" style="color:#8b949e;font-style:italic">empty</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; EmptyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3" style="color:#8b949e;font-style:italic">empty</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'em1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'em2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="em1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext -d '{}' 127.0.0.1:50054 grpcbin.GRPCBin/Empty</pre></div>
+      <div class="tab-panel" id="em2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure -d '{}' grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/Empty</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- DummyUnary -->
+<div class="rpc" id="DummyUnary">
+  <div class="rpc-header">
+    <div>
+      <h2>DummyUnary <span class="badge unary">unary</span></h2>
+      <p>Echoes back the received DummyMessage unchanged. Use this to verify field round-trips.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request / Response &mdash; DummyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>f_string</code></td><td>string</td><td></td></tr>
+          <tr><td><code>f_strings</code></td><td>string[]</td><td>repeated</td></tr>
+          <tr><td><code>f_int32</code></td><td>int32</td><td></td></tr>
+          <tr><td><code>f_int32s</code></td><td>int32[]</td><td>repeated</td></tr>
+          <tr><td><code>f_enum</code></td><td>Enum</td><td>ENUM_0 / ENUM_1 / ENUM_2</td></tr>
+          <tr><td><code>f_bool</code></td><td>bool</td><td></td></tr>
+          <tr><td><code>f_int64</code></td><td>int64</td><td></td></tr>
+          <tr><td><code>f_bytes</code></td><td>bytes</td><td></td></tr>
+          <tr><td><code>f_float</code></td><td>float</td><td></td></tr>
+          <tr><td><code>f_sub</code></td><td>Sub</td><td>nested: <code>f_string</code></td></tr>
+        </tbody></table>
+      </div>
+      <div class="section">
+        <h3>Enum values</h3>
+        <table><thead><tr><th>Name</th><th>Number</th></tr></thead>
+        <tbody>
+          <tr><td><code>ENUM_0</code></td><td>0</td></tr>
+          <tr><td><code>ENUM_1</code></td><td>1</td></tr>
+          <tr><td><code>ENUM_2</code></td><td>2</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'du1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'du2')">grpcurl (Apache 443)</div>
+        <div class="tab" onclick="showTab(this,'du3')">Response</div>
+      </div>
+      <div class="tab-panel active" id="du1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"f_string":"hello","f_int32":42,"f_bool":true,"f_enum":"ENUM_1"}' \
+  127.0.0.1:50054 grpcbin.GRPCBin/DummyUnary</pre></div>
+      <div class="tab-panel" id="du2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"f_string":"hello","f_int32":42,"f_bool":true,"f_enum":"ENUM_1"}' \
+  grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/DummyUnary</pre></div>
+      <div class="tab-panel" id="du3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
+  "f_string": "hello",
+  "f_strings": [],
+  "f_int32": 42,
+  "f_int32s": [],
+  "f_enum": "ENUM_1",
+  "f_bool": true,
+  "f_bools": [],
+  "f_int64": "0",
+  "f_bytes": { "type": "Buffer", "data": [] },
+  "f_float": 0,
+  "f_floats": []
+}</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- DummyServerStream -->
+<div class="rpc" id="DummyServerStream">
+  <div class="rpc-header">
+    <div>
+      <h2>DummyServerStream <span class="badge server-stream">server-streaming</span></h2>
+      <p>Sends back the received DummyMessage 10 times as a server-side stream.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; DummyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">Same fields as DummyUnary above</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Stream Response &mdash; DummyMessage (×10)</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">Identical copy of the request, repeated 10 times</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'dss1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'dss2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="dss1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"f_string":"ping","f_int32":1}' \
+  127.0.0.1:50054 grpcbin.GRPCBin/DummyServerStream</pre></div>
+      <div class="tab-panel" id="dss2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"f_string":"ping","f_int32":1}' \
+  grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/DummyServerStream</pre></div>
+    </div>
+    <div class="note">The stream sends exactly 10 messages then closes normally.</div>
+  </div>
+</div>
+
+<!-- DummyClientStream -->
+<div class="rpc" id="DummyClientStream">
+  <div class="rpc-header">
+    <div>
+      <h2>DummyClientStream <span class="badge client-stream">client-streaming</span></h2>
+      <p>Receives 10 DummyMessages from the client and replies with the last one received.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Stream Request &mdash; DummyMessage (×10)</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">Send 10 DummyMessage frames; server reads all 10 then responds</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; DummyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">Echo of the last received message</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'dcs1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'dcs2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="dcs1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button># grpcurl reads newline-delimited JSON from stdin for client-streaming RPCs
+printf '{"f_string":"msg1"}\n{"f_string":"msg2"}\n{"f_string":"msg10"}\n' | \
+grpcurl -plaintext -d @ \
+  127.0.0.1:50054 grpcbin.GRPCBin/DummyClientStream</pre></div>
+      <div class="tab-panel" id="dcs2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>printf '{"f_string":"msg1"}\n{"f_string":"msg10"}\n' | \
+grpcurl -insecure -d @ \
+  grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/DummyClientStream</pre></div>
+    </div>
+    <div class="note">Send as many messages as you want; the server reads until the client closes the stream and returns the last message received.</div>
+  </div>
+</div>
+
+<!-- DummyBidirectionalStreamStream -->
+<div class="rpc" id="DummyBidirectionalStreamStream">
+  <div class="rpc-header">
+    <div>
+      <h2>DummyBidirectionalStreamStream <span class="badge bidi">bidirectional</span></h2>
+      <p>Echoes back each received DummyMessage indefinitely — a simple chat-mode ping/pong.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Stream Request &mdash; DummyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">Any DummyMessage; server echoes each one immediately</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Stream Response &mdash; DummyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">Mirror of each received message</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'bidi1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'bidi2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="bidi1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>printf '{"f_string":"a"}\n{"f_string":"b"}\n{"f_string":"c"}\n' | \
+grpcurl -plaintext -d @ \
+  127.0.0.1:50054 grpcbin.GRPCBin/DummyBidirectionalStreamStream</pre></div>
+      <div class="tab-panel" id="bidi2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>printf '{"f_string":"a"}\n{"f_string":"b"}\n' | \
+grpcurl -insecure -d @ \
+  grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/DummyBidirectionalStreamStream</pre></div>
+    </div>
+    <div class="note">The server keeps the stream open and echoes each message as it arrives. Close stdin (Ctrl+D) or disconnect the client to end the session.</div>
+  </div>
+</div>
+
+<!-- SpecificError -->
+<div class="rpc" id="SpecificError">
+  <div class="rpc-header">
+    <div>
+      <h2>SpecificError <span class="badge unary">unary</span></h2>
+      <p>Raises a gRPC error with a specific status code and reason. Use this to test error-handling logic in clients.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; SpecificErrorRequest</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>uint32</td><td>gRPC status code number (e.g. 5 = NOT_FOUND)</td></tr>
+          <tr><td><code>reason</code></td><td>string</td><td>error message text</td></tr>
+        </tbody></table>
+      </div>
+      <div class="section">
+        <h3>Common gRPC status codes</h3>
+        <table><thead><tr><th>Code</th><th>Number</th></tr></thead>
+        <tbody>
+          <tr><td>OK</td><td>0</td></tr>
+          <tr><td>CANCELLED</td><td>1</td></tr>
+          <tr><td>NOT_FOUND</td><td>5</td></tr>
+          <tr><td>PERMISSION_DENIED</td><td>7</td></tr>
+          <tr><td>INTERNAL</td><td>13</td></tr>
+          <tr><td>UNAVAILABLE</td><td>14</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'se1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'se2')">grpcurl (Apache 443)</div>
+        <div class="tab" onclick="showTab(this,'se3')">Response</div>
+      </div>
+      <div class="tab-panel active" id="se1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"code":5,"reason":"resource not found"}' \
+  127.0.0.1:50054 grpcbin.GRPCBin/SpecificError</pre></div>
+      <div class="tab-panel" id="se2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"code":5,"reason":"resource not found"}' \
+  grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/SpecificError</pre></div>
+      <div class="tab-panel" id="se3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>ERROR:
+  Code: NotFound
+  Message: resource not found</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- RandomError -->
+<div class="rpc" id="RandomError">
+  <div class="rpc-header">
+    <div>
+      <h2>RandomError <span class="badge unary">unary</span></h2>
+      <p>Returns a random gRPC error. Use this to test retry and error-recovery logic.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; EmptyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3" style="color:#8b949e;font-style:italic">empty</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">Always returns an error; the code is chosen randomly</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'re1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'re2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="re1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext -d '{}' 127.0.0.1:50054 grpcbin.GRPCBin/RandomError</pre></div>
+      <div class="tab-panel" id="re2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure -d '{}' grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/RandomError</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- HeadersUnary -->
+<div class="rpc" id="HeadersUnary">
+  <div class="rpc-header">
+    <div>
+      <h2>HeadersUnary <span class="badge unary">unary</span></h2>
+      <p>Returns all incoming gRPC metadata (headers) back in the response body. Useful for debugging proxy header propagation.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; EmptyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3" style="color:#8b949e;font-style:italic">empty — add custom metadata via grpcurl -H flag</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; HeadersMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>Metadata</code></td><td>map&lt;string, Values&gt;</td><td>all incoming metadata keys</td></tr>
+          <tr><td>&nbsp;&nbsp;<code>values</code></td><td>string[]</td><td>one or more values per key</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'hu1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'hu2')">grpcurl (Apache 443)</div>
+        <div class="tab" onclick="showTab(this,'hu3')">Response</div>
+      </div>
+      <div class="tab-panel active" id="hu1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -H "x-my-header: test-value" \
+  -d '{}' \
+  127.0.0.1:50054 grpcbin.GRPCBin/HeadersUnary</pre></div>
+      <div class="tab-panel" id="hu2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -H "x-my-header: test-value" \
+  -d '{}' \
+  grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/HeadersUnary</pre></div>
+      <div class="tab-panel" id="hu3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
+  "Metadata": {
+    "x-my-header": { "values": ["test-value"] },
+    "content-type": { "values": ["application/grpc"] },
+    "user-agent": { "values": ["grpc-go/..."] }
+  }
+}</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- NoResponseUnary -->
+<div class="rpc" id="NoResponseUnary">
+  <div class="rpc-header">
+    <div>
+      <h2>NoResponseUnary <span class="badge unary">unary</span></h2>
+      <p>Accepts a request but sends no response message — only a trailing OK status. Tests client handling of empty unary replies.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; EmptyMessage</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3" style="color:#8b949e;font-style:italic">empty</td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td colspan="3">No response body; status code OK</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'nr1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'nr2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="nr1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext -d '{}' 127.0.0.1:50054 grpcbin.GRPCBin/NoResponseUnary</pre></div>
+      <div class="tab-panel" id="nr2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure -d '{}' grpc-service-apache-origin.qa.akamai.com:443 grpcbin.GRPCBin/NoResponseUnary</pre></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /grpcbin.GRPCBin -->
+
+<!-- ============================================================ -->
+<!-- hello.HelloService -->
+<!-- ============================================================ -->
+<div class="service-section">
+<div class="service-heading">hello.HelloService</div>
+
+<!-- SayHello -->
+<div class="rpc" id="SayHello">
+  <div class="rpc-header">
+    <div>
+      <h2>SayHello <span class="badge unary">unary</span></h2>
+      <p>Simple unary hello — sends a greeting string and receives a reply.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; HelloRequest</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>greeting</code></td><td>string</td><td>optional</td></tr>
+        </tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; HelloResponse</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>reply</code></td><td>string</td><td>required</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'sh1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'sh2')">grpcurl (Apache 443)</div>
+        <div class="tab" onclick="showTab(this,'sh3')">With -proto flag</div>
+        <div class="tab" onclick="showTab(this,'sh4')">Response</div>
+      </div>
+      <div class="tab-panel active" id="sh1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"greeting":"world"}' \
+  127.0.0.1:50054 hello.HelloService/SayHello</pre></div>
+      <div class="tab-panel" id="sh2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"greeting":"world"}' \
+  grpc-service-apache-origin.qa.akamai.com:443 hello.HelloService/SayHello</pre></div>
+      <div class="tab-panel" id="sh3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button># If reflection is unavailable, supply the proto explicitly
+curl -fsSL https://raw.githubusercontent.com/moul/pb/master/hello/hello.proto -o /tmp/hello.proto
+
+grpcurl -insecure \
+  -proto /tmp/hello.proto \
+  -d '{"greeting":"world"}' \
+  grpc-service-apache-origin.qa.akamai.com:443 hello.HelloService/SayHello</pre></div>
+      <div class="tab-panel" id="sh4"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
+  "reply": "hello world"
+}</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- LotsOfReplies -->
+<div class="rpc" id="LotsOfReplies">
+  <div class="rpc-header">
+    <div>
+      <h2>LotsOfReplies <span class="badge server-stream">server-streaming</span></h2>
+      <p>Sends many HelloResponse messages for a single request. Tests server-streaming consumption.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; HelloRequest</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>greeting</code></td><td>string</td><td>optional</td></tr>
+        </tbody></table>
+      </div>
+      <div class="section">
+        <h3>Stream Response &mdash; HelloResponse</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>reply</code></td><td>string</td><td>repeated greeting replies</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'lor1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'lor2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="lor1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"greeting":"test"}' \
+  127.0.0.1:50054 hello.HelloService/LotsOfReplies</pre></div>
+      <div class="tab-panel" id="lor2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"greeting":"test"}' \
+  grpc-service-apache-origin.qa.akamai.com:443 hello.HelloService/LotsOfReplies</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- LotsOfGreetings -->
+<div class="rpc" id="LotsOfGreetings">
+  <div class="rpc-header">
+    <div>
+      <h2>LotsOfGreetings <span class="badge client-stream">client-streaming</span></h2>
+      <p>Receives many HelloRequest messages from the client and returns a single combined reply.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Stream Request &mdash; HelloRequest</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>greeting</code></td><td>string</td><td>send as many as desired</td></tr>
+        </tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; HelloResponse</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>reply</code></td><td>string</td><td>combined response</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'log1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'log2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="log1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>printf '{"greeting":"alice"}\n{"greeting":"bob"}\n{"greeting":"carol"}\n' | \
+grpcurl -plaintext -d @ \
+  127.0.0.1:50054 hello.HelloService/LotsOfGreetings</pre></div>
+      <div class="tab-panel" id="log2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>printf '{"greeting":"alice"}\n{"greeting":"bob"}\n' | \
+grpcurl -insecure -d @ \
+  grpc-service-apache-origin.qa.akamai.com:443 hello.HelloService/LotsOfGreetings</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- BidiHello -->
+<div class="rpc" id="BidiHello">
+  <div class="rpc-header">
+    <div>
+      <h2>BidiHello <span class="badge bidi">bidirectional</span></h2>
+      <p>Full bidirectional streaming — each HelloRequest sent by the client is echoed back as a HelloResponse.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Stream Request &mdash; HelloRequest</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td><code>greeting</code></td><td>string</td><td></td></tr></tbody></table>
+      </div>
+      <div class="section">
+        <h3>Stream Response &mdash; HelloResponse</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody><tr><td><code>reply</code></td><td>string</td><td>echoed greeting</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'bh1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'bh2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="bh1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>printf '{"greeting":"hello"}\n{"greeting":"world"}\n' | \
+grpcurl -plaintext -d @ \
+  127.0.0.1:50054 hello.HelloService/BidiHello</pre></div>
+      <div class="tab-panel" id="bh2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>printf '{"greeting":"hello"}\n{"greeting":"world"}\n' | \
+grpcurl -insecure -d @ \
+  grpc-service-apache-origin.qa.akamai.com:443 hello.HelloService/BidiHello</pre></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /hello.HelloService -->
+
+<!-- ============================================================ -->
+<!-- addsvc.Add -->
+<!-- ============================================================ -->
+<div class="service-section">
+<div class="service-heading">addsvc.Add</div>
+
+<!-- Sum -->
+<div class="rpc" id="Sum">
+  <div class="rpc-header">
+    <div>
+      <h2>Sum <span class="badge unary">unary</span></h2>
+      <p>Adds two integers and returns the result.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; SumRequest</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>a</code></td><td>int64</td><td>first operand</td></tr>
+          <tr><td><code>b</code></td><td>int64</td><td>second operand</td></tr>
+        </tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; SumReply</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>v</code></td><td>int64</td><td>a + b</td></tr>
+          <tr><td><code>err</code></td><td>string</td><td>error string if any</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'sum1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'sum2')">grpcurl (Apache 443)</div>
+        <div class="tab" onclick="showTab(this,'sum3')">Response</div>
+      </div>
+      <div class="tab-panel active" id="sum1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"a":3,"b":4}' \
+  127.0.0.1:50054 addsvc.Add/Sum</pre></div>
+      <div class="tab-panel" id="sum2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"a":3,"b":4}' \
+  grpc-service-apache-origin.qa.akamai.com:443 addsvc.Add/Sum</pre></div>
+      <div class="tab-panel" id="sum3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
+  "v": "7"
+}</pre></div>
+    </div>
+  </div>
+</div>
+
+<!-- Concat -->
+<div class="rpc" id="Concat">
+  <div class="rpc-header">
+    <div>
+      <h2>Concat <span class="badge unary">unary</span></h2>
+      <p>Concatenates two strings and returns the result.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="schema">
+      <div class="section">
+        <h3>Request &mdash; ConcatRequest</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>a</code></td><td>string</td><td>first string</td></tr>
+          <tr><td><code>b</code></td><td>string</td><td>second string</td></tr>
+        </tbody></table>
+      </div>
+      <div class="section">
+        <h3>Response &mdash; ConcatReply</h3>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>v</code></td><td>string</td><td>a + b</td></tr>
+          <tr><td><code>err</code></td><td>string</td><td>error string if any</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Examples</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'cc1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'cc2')">grpcurl (Apache 443)</div>
+        <div class="tab" onclick="showTab(this,'cc3')">Response</div>
+      </div>
+      <div class="tab-panel active" id="cc1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"a":"foo","b":"bar"}' \
+  127.0.0.1:50054 addsvc.Add/Concat</pre></div>
+      <div class="tab-panel" id="cc2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"a":"foo","b":"bar"}' \
+  grpc-service-apache-origin.qa.akamai.com:443 addsvc.Add/Concat</pre></div>
+      <div class="tab-panel" id="cc3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>{
+  "v": "foobar"
+}</pre></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /addsvc.Add -->
+
+<!-- ============================================================ -->
+<!-- ABitOfEverythingService -->
+<!-- ============================================================ -->
+<div class="service-section">
+<div class="service-heading" id="ABE">grpc.gateway.examples.examplepb.ABitOfEverythingService</div>
+
+<div class="rpc">
+  <div class="rpc-header">
+    <div>
+      <h2>ABitOfEverythingService <span class="badge unary">unary</span> <span class="badge server-stream">server-streaming</span></h2>
+      <p>A grpc-gateway example service demonstrating a broad set of RPC patterns and field types. Key RPCs: <code>Create</code>, <code>Lookup</code>, <code>Update</code>, <code>Delete</code>, <code>Echo</code>, <code>GetQuery</code>, <code>Timeout</code>, <code>ErrorWithDetails</code>.</p>
+    </div>
+  </div>
+  <div class="rpc-body">
+    <div class="note">This service uses complex message types. Use server reflection (already routed through Apache) or supply the proto directly. Examples below use reflection.</div>
+    <div class="section" style="margin-top:16px">
+      <h3>Discover all methods via reflection</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'abe0')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'abe0b')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="abe0"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext 127.0.0.1:50054 \
+  grpc.gateway.examples.examplepb.ABitOfEverythingService/describe</pre></div>
+      <div class="tab-panel" id="abe0b"><pre><button class="copy-btn" onclick="copy(this)">Copy</button># List all methods on the service
+grpcurl -insecure grpc-service-apache-origin.qa.akamai.com:443 \
+  list grpc.gateway.examples.examplepb.ABitOfEverythingService</pre></div>
+    </div>
+    <div class="section">
+      <h3>Echo (unary)</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'abe1')">grpcurl (direct)</div>
+        <div class="tab" onclick="showTab(this,'abe2')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="abe1"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -plaintext \
+  -d '{"value":"hello","num":42}' \
+  127.0.0.1:50054 \
+  grpc.gateway.examples.examplepb.ABitOfEverythingService/Echo</pre></div>
+      <div class="tab-panel" id="abe2"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{"value":"hello","num":42}' \
+  grpc-service-apache-origin.qa.akamai.com:443 \
+  grpc.gateway.examples.examplepb.ABitOfEverythingService/Echo</pre></div>
+    </div>
+    <div class="section">
+      <h3>Timeout (triggers deadline exceeded)</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'abe3')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="abe3"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{}' \
+  grpc-service-apache-origin.qa.akamai.com:443 \
+  grpc.gateway.examples.examplepb.ABitOfEverythingService/Timeout</pre></div>
+    </div>
+    <div class="section">
+      <h3>ErrorWithDetails (returns error + detail payload)</h3>
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(this,'abe4')">grpcurl (Apache 443)</div>
+      </div>
+      <div class="tab-panel active" id="abe4"><pre><button class="copy-btn" onclick="copy(this)">Copy</button>grpcurl -insecure \
+  -d '{}' \
+  grpc-service-apache-origin.qa.akamai.com:443 \
+  grpc.gateway.examples.examplepb.ABitOfEverythingService/ErrorWithDetails</pre></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /ABitOfEverythingService -->
+
+</div><!-- /container -->
+
+<footer>gRPCBin &mdash; httpbin-like test server for gRPC &mdash; <a href="https://github.com/moul/grpcbin" target="_blank">github.com/moul/grpcbin</a> &mdash; internal port <code>50054</code> (h2c) &mdash; Apache proxy <code>443</code></footer>
+
+<script>
+  function showTab(btn, id) {
+    const rpc = btn.closest('.rpc-body');
+    rpc.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    rpc.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id).classList.add('active');
+  }
+  function copy(btn) {
+    const text = btn.parentElement.innerText.replace('Copy\n','');
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 1500);
+    });
+  }
+</script>
+</body>
+</html>
