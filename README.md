@@ -3,11 +3,12 @@ Create installable gRPC applications
 
 ## Shared Apache 443 Host
 
-This repo includes a shared Apache `443` virtual host for serving these three applications behind one hostname:
+This repo includes a shared Apache `443` virtual host for serving these applications behind one hostname:
 
 - `chat-service` at `/chat-service/`
 - `stock-ticker-service` at `/stock-ticker/`
 - `job-orchestrator-service` at `/job-orchestrator/`
+- `grpcbin` gRPC test services proxied directly by service path to `127.0.0.1:50054`
 
 Use the shared hostname:
 
@@ -19,6 +20,8 @@ Deployment assets:
 
 - Apache vhost: `deploy/apache-grpc-services-443.conf`
 - Self-signed cert helper: `deploy/create-grpc-services-cert.sh`
+- grpcbin systemd unit: `deploy/grpcbin.service`
+- grpcbin installer: `deploy/install-grpcbin.sh`
 
 Example Ubuntu steps:
 
@@ -32,6 +35,15 @@ sudo cp deploy/apache-grpc-services-443.conf /etc/apache2/sites-available/grpc-s
 sudo a2ensite grpc-services.conf
 sudo apache2ctl configtest
 sudo systemctl reload apache2
+```
+
+Install grpcbin on Ubuntu:
+
+```bash
+cd /path/to/gRPC-Applications
+chmod +x deploy/install-grpcbin.sh
+sudo ./deploy/install-grpcbin.sh
+sudo systemctl status grpcbin --no-pager
 ```
 
 Expected browser URLs:
@@ -48,6 +60,27 @@ Expected gRPC endpoints:
 chat.ChatService
 stockticker.StockTickerService
 joborchestrator.JobOrchestrator
+grpcbin.GRPCBin
+hello.HelloService
+addsvc.Add
+grpc.gateway.examples.examplepb.ABitOfEverythingService
 ```
 
 Note: generic reflection and gRPC health paths are not routed in the shared Apache config because those well-known paths collide when multiple backends share one hostname and port.
+
+Example grpcurl calls through Apache `443`:
+
+```bash
+grpcurl -insecure \
+	-d '{}' \
+	grpc-service-apache-origin.qa.akamai.com:443 \
+	grpcbin.GRPCBin/Index
+
+grpcurl -insecure \
+	-proto <(curl -fsSL https://raw.githubusercontent.com/moul/pb/master/hello/hello.proto) \
+	-d '{"greeting":"hello"}' \
+	grpc-service-apache-origin.qa.akamai.com:443 \
+	hello.HelloService/SayHello
+```
+
+grpcbin deployment note: upstream `grpcbin` always starts both an insecure listener and a TLS listener. The provided installer binds the h2c backend to `127.0.0.1:50054`, binds the required TLS listener to `127.0.0.1:50056`, and generates a local self-signed certificate under `/opt/grpcbin/cert/` so the systemd service can start cleanly.

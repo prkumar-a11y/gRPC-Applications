@@ -1,0 +1,20 @@
+[Unit]
+Description=gRPCBin test service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=grpc
+Group=grpc
+WorkingDirectory=/opt/grpcbin
+ExecStart=/opt/grpcbin/bin/grpcbin \
+  -insecure-addr 127.0.0.1:50054 \
+  -metrics-addr 127.0.0.1:50056 \
+  -tls-cert /opt/grpcbin/cert/server.crt \
+  -tls-key /opt/grpcbin/cert/server.key
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
