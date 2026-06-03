@@ -20,8 +20,8 @@ Deployment assets:
 
 - Apache vhost: `deploy/apache-grpc-services-443.conf`
 - Self-signed cert helper: `deploy/create-grpc-services-cert.sh`
-- grpcbin systemd unit: `deploy/grpcbin.service`
-- grpcbin installer: `deploy/install-grpcbin.sh`
+- grpcbin systemd unit: `gRPC-BIN/grpcbin.service`
+- grpcbin installer: `gRPC-BIN/install-grpcbin.sh`
 
 Example Ubuntu steps:
 
@@ -41,8 +41,8 @@ Install grpcbin on Ubuntu:
 
 ```bash
 cd /path/to/gRPC-Applications
-chmod +x deploy/install-grpcbin.sh
-sudo ./deploy/install-grpcbin.sh
+chmod +x gRPC-BIN/install-grpcbin.sh
+sudo ./gRPC-BIN/install-grpcbin.sh
 sudo systemctl status grpcbin --no-pager
 ```
 
@@ -83,4 +83,4 @@ grpcurl -insecure \
 	hello.HelloService/SayHello
 ```
 
-grpcbin deployment note: upstream `grpcbin` always starts both an insecure listener and a TLS listener. The provided installer binds the h2c backend to `127.0.0.1:50054`, binds the required TLS listener to `127.0.0.1:50056`, and generates a local self-signed certificate under `/opt/grpcbin/cert/` so the systemd service can start cleanly.
+grpcbin deployment note: upstream `grpcbin` always starts both an insecure listener and a TLS listener. The provided installer in `gRPC-BIN/` binds the h2c backend to `127.0.0.1:50054`, binds the required TLS listener to `127.0.0.1:50056`, and generates a local self-signed certificate under `/opt/grpcbin/cert/` so the systemd service can start cleanly.
