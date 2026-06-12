@@ -144,7 +144,7 @@ const indexHTML = `<!DOCTYPE html>
 
   async function loadRooms() {
     try {
-      const res = await fetch(API + '/api/rooms');
+      const res = await fetch(API + '/rooms');
       const data = await res.json();
       const list = document.getElementById('room-list');
       const rooms = data.rooms || [];
@@ -179,7 +179,7 @@ const indexHTML = `<!DOCTYPE html>
     document.getElementById('messages').innerHTML = '';
 
     if (eventSource) eventSource.close();
-    const url = API + '/api/rooms/join?room_id=' + encodeURIComponent(id) + '&username=' + encodeURIComponent(username);
+    const url = API + '/rooms/join?room_id=' + encodeURIComponent(id) + '&username=' + encodeURIComponent(username);
     eventSource = new EventSource(url);
     document.getElementById('status-dot').className = 'connected';
     eventSource.onmessage = function(e) {
@@ -199,7 +199,7 @@ const indexHTML = `<!DOCTYPE html>
     if (!currentRoom) return;
     if (doLeave) {
       try {
-        await fetch(API + '/api/rooms/leave', {
+        await fetch(API + '/rooms/leave', {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
           body: JSON.stringify({room_id: currentRoom, username: username})
@@ -224,7 +224,7 @@ const indexHTML = `<!DOCTYPE html>
     if (!content || !currentRoom) return;
     input.value = '';
     try {
-      await fetch(API + '/api/messages', {
+      await fetch(API + '/messages', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({room_id: currentRoom, username: username, content: content})
@@ -235,7 +235,7 @@ const indexHTML = `<!DOCTYPE html>
   async function loadUsers() {
     if (!currentRoom) return;
     try {
-      const res = await fetch(API + '/api/rooms/' + encodeURIComponent(currentRoom) + '/users');
+      const res = await fetch(API + '/rooms/' + encodeURIComponent(currentRoom) + '/users');
       const data = await res.json();
       const ul = document.getElementById('user-list');
       const users = data.users || [];
